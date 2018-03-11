@@ -1,0 +1,11 @@
+{
+  "name": "webpack-meteor-boilerplate",
+  "private": true,
+  "scripts": {
+    "start": "METEOR_PACKAGE_DIRS=\".meteor/local_packages\" MONGO_URL=\"mongodb://heroku_7prz6hp9:5dbdecdri6uuoh1fmf8r3be60d@ds157682.mlab.com:57682/heroku_7prz6hp9\" meteor run"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.36",
+    "meteor-node-stubs": "^0.3.2"
+  }
+}
