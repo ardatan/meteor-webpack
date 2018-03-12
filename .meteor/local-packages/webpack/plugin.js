@@ -3,7 +3,7 @@ const MemoryFS = Npm.require('memory-fs');
 const path = Npm.require('path');
 const requireFromString = Npm.require('require-from-string');
 Plugin.registerCompiler({
-    extensions: ['js', 'jsx'],
+    extensions: ['js', 'jsx', 'html'],
 }, function () {
     return {
         processFilesForTarget(inputFiles) {
@@ -23,7 +23,6 @@ Plugin.registerCompiler({
                             webpackConfig = serverConfig;
                         }
                     }
-                    //webpackConfig.mode = process.env.NODE_ENV;
                     targetFile = inputFile;
                     break;
                 }
@@ -36,7 +35,9 @@ Plugin.registerCompiler({
                     reject(err);
                 }
                 if (stats) {
-                    console.log(stats.toString())
+                    console.log(stats.toString({
+                        colors: true
+                    }));
                 }
                 resolve();
             })).await();
