@@ -6,4 +6,5 @@
 
 meteor-base@1.3.0             # Packages every Meteor app needs to have
 mongo@1.4.2                   # The database Meteor supports right now
-ecmascript
+webpack
+modules

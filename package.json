@@ -2,13 +2,12 @@
   "name": "webpack-meteor-boilerplate",
   "private": true,
   "scripts": {
-    "start": "MONGO_URL=\"mongodb://heroku_7prz6hp9:5dbdecdri6uuoh1fmf8r3be60d@ds157682.mlab.com:57682/heroku_7prz6hp9\" meteor run"
+    "start": "MONGO_URL=\"mongodb://heroku_7prz6hp9:5dbdecdri6uuoh1fmf8r3be60d@ds157682.mlab.com:57682/heroku_7prz6hp9\" METEOR_PACKAGE_DIRS=\".meteor/local-packages\" meteor run"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.40",
     "clean-webpack-plugin": "^0.1.19",
     "meteor-node-stubs": "^0.3.2",
-    "rimraf": "^2.6.2",
     "webpack": "^4.1.1",
     "webpack-dev-middleware": "^3.0.1",
     "webpack-hot-middleware": "^2.21.2"
