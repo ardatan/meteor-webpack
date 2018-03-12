@@ -23,7 +23,7 @@ Plugin.registerCompiler({
                             webpackConfig = serverConfig;
                         }
                     }
-                    webpackConfig.mode = process.env.NODE_ENV;
+                    //webpackConfig.mode = process.env.NODE_ENV;
                     targetFile = inputFile;
                     break;
                 }
