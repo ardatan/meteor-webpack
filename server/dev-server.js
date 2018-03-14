@@ -1,5 +1,4 @@
 
-
 if (Meteor.isServer && Meteor.isDevelopment) {
     const path = Npm.require('path');
 

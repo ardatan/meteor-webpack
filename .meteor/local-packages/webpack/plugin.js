@@ -67,11 +67,13 @@ Plugin.registerCompiler({
                 });
                 //serve all files without adding Meteor's Bundler
                 outFs.readdirSync(compiler.outputPath).forEach((outputFilePath, key) => {
-                    const absoluteFilePath = path.join(compiler.outputPath, outputFilePath);
-                    targetFile.addAsset({
-                        path: outputFilePath,
-                        data: outFs.readFileSync(absoluteFilePath, 'utf8')
-                    });
+                    if (!outputFilePath.includes('index.html')) {
+                        const absoluteFilePath = path.join(compiler.outputPath, outputFilePath);
+                        targetFile.addAsset({
+                            path: outputFilePath,
+                            data: outFs.readFileSync(absoluteFilePath, 'utf8')
+                        });
+                    }
                 })
             } else {
                 outFs.readdirSync(compiler.outputPath).forEach((outputFilePath, key) => {
