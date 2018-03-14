@@ -7,7 +7,8 @@ Package.registerBuildPlugin({
     use: ['modules'],
     npmDependencies: {
         "memory-fs": "0.4.1",
-        "require-from-string": "2.0.1"
+        "require-from-string": "2.0.1",
+        "jsdom": "11.6.2"
     },
     sources: ['plugin.js']
 });

@@ -33,21 +33,24 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         webpackConfig = allWebpackConfigs;
     }
 
-    const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
+    if (webpackConfig) {
+        const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
-    webpackConfig.mode = 'development';
-    webpackConfig.context = projectPath;
+        webpackConfig.mode = 'development';
+        webpackConfig.context = projectPath;
 
-    const compiler = webpack(webpackConfig);
+        const compiler = webpack(webpackConfig);
 
-    // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
-    // configuration file as a base.
-    WebApp.connectHandlers.use(webpackDevMiddleware(compiler, webpackConfig.devServer));
-    if (webpackConfig.devServer.hot) {
-        WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
+        // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
+        // configuration file as a base.
+        WebApp.connectHandlers.use(webpackDevMiddleware(compiler, webpackConfig.devServer));
+        if (webpackConfig.devServer.hot) {
+            WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
+        }
+        WebAppInternals.registerBoilerplateDataCallback('webpack', (request, data, arch) => {
+            data.dynamicBody = data.dynamicBody || '';
+            data.dynamicBody = +`<script defer src="main.js"></script>`;
+        });
     }
-    WebAppInternals.registerBoilerplateDataCallback('webpack', (request, data, arch) => {
-        data.dynamicBody = data.dynamicBody || '';
-        data.dynamicBody = +`<script defer src="main.js"></script>`;
-    });
+
 }

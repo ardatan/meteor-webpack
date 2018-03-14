@@ -1,16 +1,18 @@
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const clientConfig = {
     target: 'web',
     entry: ['./client/main.js', 'webpack-hot-middleware/client'],
     devtool: 'inline-source-map',
-    devServer: {
+    /*devServer: {
         hot: true
-    },
+    },*/
     output: {
         publicPath: '/'
     },
     plugins: [
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new HtmlWebpackPlugin()
     ],
     externals: [
         resolveExternals

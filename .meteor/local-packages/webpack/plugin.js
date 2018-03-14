@@ -2,19 +2,20 @@ const webpack = Npm.require('webpack');
 const MemoryFS = Npm.require('memory-fs');
 const path = Npm.require('path');
 const requireFromString = Npm.require('require-from-string');
+const { JSDOM } = Npm.require('jsdom');
 Plugin.registerCompiler({
     extensions: ['js', 'jsx', 'html'],
 }, function () {
     return {
         processFilesForTarget(inputFiles) {
             const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
+            const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
             const allWebpackConfigs = requireFromString(targetFile.getContentsAsString());
             let webpackConfig;
             if (allWebpackConfigs instanceof Array) {
-                const target = targetFile.getArch().includes('web') ? 'web' : 'node';
                 webpackConfig = allWebpackConfigs.find(webpackConfig => {
                     if (webpackConfig.target) {
-                        if (webpackConfig.target == target) {
+                        if (webpackConfig.target == targetPlatform) {
                             if (process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
                                 return false;
                             } else {
@@ -23,7 +24,7 @@ Plugin.registerCompiler({
                         } else {
                             return false;
                         }
-                    } else if (target == 'web') {
+                    } else if (targetPlatform == 'web') {
                         if (process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
                             return false;
                         } else {
@@ -50,22 +51,40 @@ Plugin.registerCompiler({
                 }
                 resolve();
             })).await();
-            outFs.readdirSync(compiler.outputPath).forEach((outputFilePath, key) => {
-                if (outputFilePath.endsWith('.js')) {
+            const indexHtmlFilePath = path.join(compiler.outputPath, 'index.html');
+            if (targetPlatform == 'web' && outFs.existsSync(indexHtmlFilePath)) {
+                let indexHtmlFileContent = outFs.readFileSync(indexHtmlFilePath, 'utf8');
+                // Load every JavaScript file after Meteor's Client Bundle load
+                indexHtmlFileContent = indexHtmlFileContent.replace('src', 'async src');
+                const { window: { document } } = new JSDOM(indexHtmlFileContent);
+                targetFile.addHtml({
+                    data: document.head.innerHTML,
+                    section: 'head'
+                });
+                targetFile.addHtml({
+                    data: document.body.innerHTML,
+                    section: 'body'
+                });
+                //serve all files without adding Meteor's Bundler
+                outFs.readdirSync(compiler.outputPath).forEach((outputFilePath, key) => {
                     const absoluteFilePath = path.join(compiler.outputPath, outputFilePath);
-                    targetFile.addJavaScript({
+                    targetFile.addAsset({
                         path: outputFilePath,
                         data: outFs.readFileSync(absoluteFilePath, 'utf8')
-                    })
-                    const absoluteSourceMapFilePath = path.join(compiler.outputPath, outputFilePath + '.map');
-                    if (outFs.existsSync(absoluteSourceMapFilePath)) {
-                        targetFile.addAsset({
-                            path: outputFilePath + '.map',
-                            data: outFs.readFileSync(absoluteSourceMapFilePath, 'utf8')
-                        })
+                    });
+                })
+            } else {
+                outFs.readdirSync(compiler.outputPath).forEach((outputFilePath, key) => {
+                    if (outputFilePath.endsWith('.js')) {
+                        const absoluteFilePath = path.join(compiler.outputPath, outputFilePath);
+                        targetFile.addJavaScript({
+                            path: outputFilePath,
+                            data: outFs.readFileSync(absoluteFilePath, 'utf8')
+                        });
                     }
-                }
-            })
+                })
+            }
+
         }
     }
 });
