@@ -1,4 +1,4 @@
 import { Meteor } from 'meteor/meteor';
 Meteor.startup(() => {
-    console.log("Test Server");
+    console.log("Test Server12");
 });

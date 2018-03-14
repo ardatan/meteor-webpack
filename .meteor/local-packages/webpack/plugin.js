@@ -7,27 +7,36 @@ Plugin.registerCompiler({
 }, function () {
     return {
         processFilesForTarget(inputFiles) {
-            let targetFile;
+            const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
+            const allWebpackConfigs = requireFromString(targetFile.getContentsAsString());
             let webpackConfig;
-            for (const inputFile of inputFiles) {
-                if (inputFile.getPathInPackage().includes('webpack.config.js')) {
-                    webpackConfig = requireFromString(inputFile.getContentsAsString());
-                    if (webpackConfig instanceof Array) {
-                        const [clientConfig, serverConfig] = webpackConfig
-                        if (inputFile.getArch().includes('web')) {
-                            webpackConfig = clientConfig;
+            if (allWebpackConfigs instanceof Array) {
+                const target = targetFile.getArch().includes('web') ? 'web' : 'node';
+                webpackConfig = allWebpackConfigs.find(webpackConfig => {
+                    if (webpackConfig.target) {
+                        if (webpackConfig.target == target) {
                             if (process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
-                                return;
+                                return false;
+                            } else {
+                                return true;
                             }
                         } else {
-                            webpackConfig = serverConfig;
+                            return false;
+                        }
+                    } else if (target == 'web') {
+                        if (process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
+                            return false;
+                        } else {
+                            return true;
                         }
                     }
-                    targetFile = inputFile;
-                    break;
-                }
+                })
+            }
+            if (!webpackConfig) {
+                return;
             }
             const compiler = webpack(webpackConfig);
+            compiler.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
             const outFs = new MemoryFS();
             compiler.outputFileSystem = outFs;
             new Promise((resolve, reject) => compiler.run((err, stats) => {

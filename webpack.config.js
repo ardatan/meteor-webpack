@@ -1,11 +1,13 @@
 const webpack = require('webpack');
 const clientConfig = {
+    target: 'web',
     entry: ['./client/main.js', 'webpack-hot-middleware/client'],
     devtool: 'inline-source-map',
     devServer: {
         hot: true
     },
     output: {
+        filename: 'main.js',
         publicPath: '/'
     },
     plugins: [
