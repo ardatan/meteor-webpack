@@ -35,8 +35,8 @@ Plugin.registerCompiler({
             if (!webpackConfig) {
                 return;
             }
+            webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
             const compiler = webpack(webpackConfig);
-            compiler.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
             const outFs = new MemoryFS();
             compiler.outputFileSystem = outFs;
             new Promise((resolve, reject) => compiler.run((err, stats) => {

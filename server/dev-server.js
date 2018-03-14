@@ -38,14 +38,16 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     webpackConfig.mode = 'development';
     webpackConfig.context = projectPath;
 
-    const clientCompiler = webpack(webpackConfig);
-    // Tell express to use the webpack-dev-middleware and use the webpack.config.js
+    const compiler = webpack(webpackConfig);
+
+    // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
     // configuration file as a base.
-    WebApp.connectHandlers.use(webpackDevMiddleware(clientCompiler, webpackConfig.devServer));
+    WebApp.connectHandlers.use(webpackDevMiddleware(compiler, webpackConfig.devServer));
     if (webpackConfig.devServer.hot) {
-        WebApp.connectHandlers.use(webpackHotMiddleware(clientCompiler));
+        WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
     }
     WebAppInternals.registerBoilerplateDataCallback('webpack', (request, data, arch) => {
-        data.dynamicBody = `<script defer src="main.js"></script>`;
+        data.dynamicBody = data.dynamicBody || '';
+        data.dynamicBody = +`<script defer src="main.js"></script>`;
     });
 }

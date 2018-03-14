@@ -7,7 +7,6 @@ const clientConfig = {
         hot: true
     },
     output: {
-        filename: 'main.js',
         publicPath: '/'
     },
     plugins: [
@@ -22,9 +21,6 @@ const serverConfig = {
     target: 'node',
     entry: ['./server/main.js', './server/dev-server.js'],
     devtool: 'inline-source-map',
-    output: {
-        filename: 'bundle.js'
-    },
     externals: [
         resolveExternals
     ]
