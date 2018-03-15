@@ -37,7 +37,18 @@ if (Meteor.isServer && Meteor.isDevelopment) {
 
         webpackConfig.mode = 'development';
         webpackConfig.context = projectPath;
-        webpackConfig.entry = [webpackConfig.entry, 'webpack-hot-middleware/client'];
+        if (webpackConfig.entry instanceof Array || typeof webpackConfig.entry === 'string') {
+            if (!(webpackConfig.entry instanceof Array)) {
+                webpackConfig.entry = [webpackConfig.entry];
+            }
+            webpackConfig.entry = {
+                app: webpackConfig.entry
+            };
+        }
+        for (const key in webpackConfig.entry) {
+            webpackConfig.entry[key].push('webpack-hot-middleware/client');
+        }
+
         const compiler = webpack(webpackConfig);
         // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
         // configuration file as a base.
@@ -48,8 +59,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                     if (content.includes('<html>')) {
                         WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
                             const { window } = new JSDOM(content);
-                            data.dynamicHead = window.document.head.innerHTML.replace('src', 'async src');
-                            data.dynamicBody = window.document.body.innerHTML.replace('src', 'async src');
+                            data.dynamicHead = window.document.head.innerHTML.split('src').join('async src');
+                            data.dynamicBody = window.document.body.innerHTML.split('src').join('async src');
                         })
                         next();
                     } else {
