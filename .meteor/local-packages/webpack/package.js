@@ -15,7 +15,4 @@ Package.registerBuildPlugin({
 
 Package.onUse(function (api) {
     api.use('isobuild:compiler-plugin@1.0.0', 'server');
-    api.use('webapp', 'server');
-    api.use('modules', 'server');
-    api.addFiles('dev-server.js', 'server');
 });
