@@ -26,7 +26,24 @@ Plugin.registerCompiler({
                     }
                 })
             }
+
+
+            function resolveExternals(context, request, callback) {
+                return resolveMeteor(request, callback) ||
+                    callback();
+            }
+
+            function resolveMeteor(request, callback) {
+                var match = request.match(/^meteor\/(.+)$/);
+                var package = match && match[1];
+                if (package) {
+                    callback(null, `Package['${package}']`);
+                    return true;
+                }
+            };
             webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
+            webpackConfig.externals = webpackConfig.externals || [];
+            webpackConfig.externals.push(resolveExternals);
             const compiler = webpack(webpackConfig);
             if (!(webpackConfig.target == 'web' && webpackConfig.mode !== 'production' && webpackConfig.devServer)) {
                 const outFs = new MemoryFS();

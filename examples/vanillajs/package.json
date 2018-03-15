@@ -2,7 +2,7 @@
   "name": "webpack-meteor-boilerplate",
   "private": true,
   "scripts": {
-    "start": "METEOR_PACKAGE_DIRS=\".meteor/local-packages\" meteor run"
+    "start": "METEOR_PACKAGE_DIRS=\"../../atmosphere-packages\" meteor run"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.41",

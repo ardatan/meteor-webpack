@@ -13,33 +13,13 @@ const clientConfig = {
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin()
-    ],
-    externals: [
-        resolveExternals
     ]
 };
 
 const serverConfig = {
     target: 'node',
     entry: './server/main.js',
-    devtool: 'inline-source-map',
-    externals: [
-        resolveExternals
-    ]
-};
-
-function resolveExternals(context, request, callback) {
-    return resolveMeteor(request, callback) ||
-        callback();
-}
-
-function resolveMeteor(request, callback) {
-    var match = request.match(/^meteor\/(.+)$/);
-    var package = match && match[1];
-    if (package) {
-        callback(null, `Package['${package}']`);
-        return true;
-    }
+    devtool: 'inline-source-map'
 };
 
 module.exports = [clientConfig, serverConfig];

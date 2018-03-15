@@ -36,6 +36,23 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
         webpackConfig.mode = 'development';
+        webpackConfig.externals = webpackConfig.externals || [];
+
+
+        function resolveExternals(context, request, callback) {
+            return resolveMeteor(request, callback) ||
+                callback();
+        }
+
+        function resolveMeteor(request, callback) {
+            var match = request.match(/^meteor\/(.+)$/);
+            var package = match && match[1];
+            if (package) {
+                callback(null, `Package['${package}']`);
+                return true;
+            }
+        };
+        webpackConfig.externals.push(resolveExternals);
         webpackConfig.context = projectPath;
         if (webpackConfig.entry instanceof Array || typeof webpackConfig.entry === 'string') {
             if (!(webpackConfig.entry instanceof Array)) {
