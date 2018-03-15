@@ -6,7 +6,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     const webpackHotMiddleware = require('webpack-hot-middleware');
     const { JSDOM } = require('jsdom');
     const allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
-    let webpackConfig;
+    let webpackConfig = allWebpackConfigs;
     if (allWebpackConfigs instanceof Array) {
         const target = 'web';
         webpackConfig = allWebpackConfigs.find(webpackConfig => {
@@ -28,11 +28,9 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 }
             }
         })
-    } else {
-        webpackConfig = allWebpackConfigs;
     }
 
-    if (webpackConfig) {
+    if (webpackConfig && webpackConfig.devServer) {
         const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
         webpackConfig.mode = 'development';
@@ -54,16 +52,19 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         };
         webpackConfig.externals.push(resolveExternals);
         webpackConfig.context = projectPath;
-        if (webpackConfig.entry instanceof Array || typeof webpackConfig.entry === 'string') {
-            if (!(webpackConfig.entry instanceof Array)) {
-                webpackConfig.entry = [webpackConfig.entry];
+
+        if (webpackConfig.devServer.hot) {
+            if (webpackConfig.entry instanceof Array || typeof webpackConfig.entry === 'string') {
+                if (!(webpackConfig.entry instanceof Array)) {
+                    webpackConfig.entry = [webpackConfig.entry];
+                }
+                webpackConfig.entry = {
+                    app: webpackConfig.entry
+                };
             }
-            webpackConfig.entry = {
-                app: webpackConfig.entry
-            };
-        }
-        for (const key in webpackConfig.entry) {
-            webpackConfig.entry[key].push('webpack-hot-middleware/client');
+            for (const key in webpackConfig.entry) {
+                webpackConfig.entry[key].push('webpack-hot-middleware/client');
+            }
         }
 
         const compiler = webpack(webpackConfig);

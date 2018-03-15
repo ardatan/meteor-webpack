@@ -12,7 +12,7 @@ Plugin.registerCompiler({
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
             const allWebpackConfigs = requireFromString(targetFile.getContentsAsString());
-            let webpackConfig;
+            let webpackConfig = allWebpackConfigs;
             if (allWebpackConfigs instanceof Array) {
                 webpackConfig = allWebpackConfigs.find(webpackConfig => {
                     if (webpackConfig.target) {
@@ -27,92 +27,73 @@ Plugin.registerCompiler({
                 })
             }
 
-
-            function resolveExternals(context, request, callback) {
-                return resolveMeteor(request, callback) ||
-                    callback();
-            }
-
-            function resolveMeteor(request, callback) {
-                var match = request.match(/^meteor\/(.+)$/);
-                var package = match && match[1];
-                if (package) {
-                    callback(null, `Package['${package}']`);
-                    return true;
+            if (webpackConfig) {
+                function resolveExternals(context, request, callback) {
+                    return resolveMeteor(request, callback) ||
+                        callback();
                 }
-            };
-            webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
-            webpackConfig.externals = webpackConfig.externals || [];
-            webpackConfig.externals.push(resolveExternals);
-            const compiler = webpack(webpackConfig);
-            if (!(webpackConfig.target == 'web' && webpackConfig.mode !== 'production' && webpackConfig.devServer)) {
-                const outFs = new MemoryFS();
-                compiler.outputFileSystem = outFs;
-                const stats = new Promise((resolve, reject) => compiler.run((err, stats) => {
-                    if (err) {
-                        reject(err);
+
+                function resolveMeteor(request, callback) {
+                    var match = request.match(/^meteor\/(.+)$/);
+                    var package = match && match[1];
+                    if (package) {
+                        callback(null, `Package['${package}']`);
+                        return true;
                     }
-                    if (stats) {
-                        console.log(stats.toString({
-                            colors: true
-                        }));
-                    }
-                    resolve(stats);
-                })).await();
-                const chunkOnlyConfig = {
-                    assets: false,
-                    cached: false,
-                    children: false,
-                    chunks: true,
-                    chunkModules: false,
-                    chunkOrigins: false,
-                    errorDetails: false,
-                    hash: false,
-                    modules: false,
-                    reasons: false,
-                    source: false,
-                    timings: false,
-                    version: false
                 };
-                const chunks = stats.toJson(chunkOnlyConfig).chunks;
-                const indexHtmlFilePath = path.join(compiler.outputPath, 'index.html');
-                if (webpackConfig.target == 'web' && outFs.existsSync(indexHtmlFilePath)) {
-                    let indexHtmlFileContent = outFs.readFileSync(indexHtmlFilePath, 'utf8');
-                    // Load every JavaScript file after Meteor's Client Bundle load
-                    indexHtmlFileContent = indexHtmlFileContent.replace('src', 'async src');
-                    const { window: { document } } = new JSDOM(indexHtmlFileContent);
-                    targetFile.addHtml({
-                        data: document.head.innerHTML,
-                        section: 'head'
-                    });
-                    targetFile.addHtml({
-                        data: document.body.innerHTML,
-                        section: 'body'
-                    });
-                    //serve all files without adding Meteor's Bundler
-                    for (const chunk of chunks) {
-                        for (const filePath of chunk.files) {
-                            const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                            const data = outFs.readFileSync(absoluteFilePath, 'utf8');
-                            targetFile.addAsset({
-                                path: filePath,
-                                hash: chunk.hash,
-                                data
-                            });
+                webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
+                webpackConfig.externals = webpackConfig.externals || [];
+                webpackConfig.externals.push(resolveExternals);
+                const compiler = webpack(webpackConfig);
+                if (!(webpackConfig.target == 'web' && webpackConfig.mode !== 'production' && webpackConfig.devServer)) {
+                    const outFs = new MemoryFS();
+                    compiler.outputFileSystem = outFs;
+                    const stats = new Promise((resolve, reject) => compiler.run((err, stats) => {
+                        if (err) {
+                            reject(err);
                         }
-                    }
-                } else {
-                    for (const chunk of chunks) {
-                        for (const filePath of chunk.files) {
-                            const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                            const data = outFs.readFileSync(absoluteFilePath, 'utf8');
-                            if (chunk.initial) {
-                                targetFile.addJavaScript({
-                                    path: filePath,
-                                    hash: chunk.hash,
-                                    data
-                                });
-                            } else {
+                        if (stats) {
+                            console.log(stats.toString({
+                                colors: true
+                            }));
+                        }
+                        resolve(stats);
+                    })).await();
+                    const chunkOnlyConfig = {
+                        assets: false,
+                        cached: false,
+                        children: false,
+                        chunks: true,
+                        chunkModules: false,
+                        chunkOrigins: false,
+                        errorDetails: false,
+                        hash: false,
+                        modules: false,
+                        reasons: false,
+                        source: false,
+                        timings: false,
+                        version: false
+                    };
+                    const chunks = stats.toJson(chunkOnlyConfig).chunks;
+                    const indexHtmlFilePath = path.join(compiler.outputPath, 'index.html');
+                    if (webpackConfig.target == 'web' && outFs.existsSync(indexHtmlFilePath)) {
+                        let indexHtmlFileContent = outFs.readFileSync(indexHtmlFilePath, 'utf8');
+                        // Load every JavaScript file after Meteor's Client Bundle load
+                        indexHtmlFileContent = indexHtmlFileContent.replace('src', 'async src');
+                        const { window: { document } } = new JSDOM(indexHtmlFileContent);
+                        targetFile.addHtml({
+                            data: document.head.innerHTML,
+                            section: 'head'
+                        });
+                        targetFile.addHtml({
+                            data: document.body.innerHTML,
+                            section: 'body'
+                        });
+                        //serve all files without adding Meteor's Bundler
+                        for (const chunk of chunks) {
+                            for (const filePath of chunk.files) {
+                                const absoluteFilePath = path.join(compiler.outputPath, filePath);
+                                const data = outFs.readFileSync(absoluteFilePath, 'utf8');
                                 targetFile.addAsset({
                                     path: filePath,
                                     hash: chunk.hash,
@@ -120,9 +101,31 @@ Plugin.registerCompiler({
                                 });
                             }
                         }
+                    } else {
+                        for (const chunk of chunks) {
+                            for (const filePath of chunk.files) {
+                                const absoluteFilePath = path.join(compiler.outputPath, filePath);
+                                const data = outFs.readFileSync(absoluteFilePath, 'utf8');
+                                if (chunk.initial) {
+                                    targetFile.addJavaScript({
+                                        path: filePath,
+                                        hash: chunk.hash,
+                                        data
+                                    });
+                                } else {
+                                    targetFile.addAsset({
+                                        path: filePath,
+                                        hash: chunk.hash,
+                                        data
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
             }
+
+
         }
     }
 });
