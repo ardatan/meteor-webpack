@@ -1,8 +1,15 @@
-import { Meteor } from 'meteor/meteor';
-import { dynamicprint } from './dynamicprint';
+import {
+    Meteor
+} from 'meteor/meteor';
+import {
+    dynamicprint
+} from './dynamicprint';
 Meteor.startup(async () => {
-    const { lazyalert } = await import('./lazyalert');
-    lazyalert();
+    const {
+        lazyprint
+    } = await
+    import ('./lazyprint');
+    lazyprint();
     dynamicprint();
     module.hot.accept('./dynamicprint', () => {
         dynamicprint();

@@ -1,3 +1,3 @@
 export function dynamicprint() {
-    document.body.innerHTML = 'I am changing during runtime without reloading!!!';
+    document.getElementById('dynamicprint').innerHTML = 'I am changing during runtime without reloading!!!';
 }

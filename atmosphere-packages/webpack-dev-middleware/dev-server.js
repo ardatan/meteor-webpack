@@ -4,7 +4,9 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     const webpack = require('webpack');
     const webpackDevMiddleware = require('webpack-dev-middleware');
     const webpackHotMiddleware = require('webpack-hot-middleware');
-    const { JSDOM } = require('jsdom');
+    const {
+        JSDOM
+    } = require('jsdom');
     const allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
     let webpackConfig = allWebpackConfigs;
     if (allWebpackConfigs instanceof Array) {
@@ -76,9 +78,11 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 end(content) {
                     if (content.includes('<html>')) {
                         WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
-                            const { window } = new JSDOM(content);
-                            data.dynamicHead = window.document.head.innerHTML.split('src').join('async src');
-                            data.dynamicBody = window.document.body.innerHTML.split('src').join('async src');
+                            const {
+                                window
+                            } = new JSDOM(content);
+                            data.dynamicHead = window.document.head.innerHTML.split('src').join('defer src');
+                            data.dynamicBody = window.document.body.innerHTML.split('src').join('defer src');
                         })
                         next();
                     } else {

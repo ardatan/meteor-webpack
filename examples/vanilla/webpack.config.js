@@ -12,7 +12,9 @@ const clientConfig = {
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
-        new HtmlWebpackPlugin()
+        new HtmlWebpackPlugin({
+            template: './client/index.html'
+        })
     ]
 };
 
