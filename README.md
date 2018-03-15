@@ -13,6 +13,7 @@ You are to free to choose the directory structure in your project, Webpack will 
 
 ## Before you start
 - You have to install webpack and necessary plugins with your favorite package manager; `yarn` or `npm`
+- Add Meteor package `webpack` by the command `meteor add webpack`
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
 - If you have seperate client and server codes, you have to declare two configurations like we have in our example.
 
