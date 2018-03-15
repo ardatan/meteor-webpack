@@ -6,8 +6,8 @@ Package.registerBuildPlugin({
     name: 'webpack',
     use: ['modules'],
     npmDependencies: {
-        "memory-fs": "0.4.1",
         "require-from-string": "2.0.1",
+        "memory-fs": "0.4.1",
         "jsdom": "11.6.2"
     },
     sources: ['plugin.js']
@@ -15,4 +15,7 @@ Package.registerBuildPlugin({
 
 Package.onUse(function (api) {
     api.use('isobuild:compiler-plugin@1.0.0', 'server');
+    api.use('webapp', 'server');
+    api.use('modules', 'server');
+    api.addFiles('dev-server.js', 'server');
 });

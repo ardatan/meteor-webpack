@@ -4,9 +4,9 @@ const clientConfig = {
     target: 'web',
     entry: ['./client/main.js', 'webpack-hot-middleware/client'],
     devtool: 'inline-source-map',
-    /*devServer: {
+    devServer: {
         hot: true
-    },*/
+    },
     output: {
         publicPath: '/'
     },
@@ -21,7 +21,7 @@ const clientConfig = {
 
 const serverConfig = {
     target: 'node',
-    entry: ['./server/main.js', './server/dev-server.js'],
+    entry: ['./server/main.js'],
     devtool: 'inline-source-map',
     externals: [
         resolveExternals

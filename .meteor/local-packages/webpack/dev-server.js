@@ -1,11 +1,10 @@
-
 if (Meteor.isServer && Meteor.isDevelopment) {
     const path = Npm.require('path');
 
-    const webpack = Npm.require('webpack');
-    const webpackDevMiddleware = Npm.require('webpack-dev-middleware');
-    const webpackHotMiddleware = Npm.require('webpack-hot-middleware');
-    const allWebpackConfigs = Npm.require('../../../../../../../webpack.config.js');
+    const webpack = require('webpack');
+    const webpackDevMiddleware = require('webpack-dev-middleware');
+    const webpackHotMiddleware = require('webpack-hot-middleware');
+    const allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
     let webpackConfig;
     if (allWebpackConfigs instanceof Array) {
         const target = 'web';
@@ -46,10 +45,6 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         if (webpackConfig.devServer.hot) {
             WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
         }
-        WebAppInternals.registerBoilerplateDataCallback('webpack', (request, data, arch) => {
-            data.dynamicBody = data.dynamicBody || '';
-            data.dynamicBody = +`<script defer src="main.js"></script>`;
-        });
     }
 
 }

@@ -453,6 +453,11 @@
       "resolved": "https://registry.npmjs.org/symbol-tree/-/symbol-tree-3.2.2.tgz",
       "integrity": "sha1-rifbOPZgp64uHDt9G8KQgZuFGeY="
     },
+    "toposort": {
+      "version": "1.0.6",
+      "resolved": "https://registry.npmjs.org/toposort/-/toposort-1.0.6.tgz",
+      "integrity": "sha1-wxdI5V0hDv/AD9zcfW5o19e7nOw="
+    },
     "tough-cookie": {
       "version": "2.3.4",
       "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.3.4.tgz",
@@ -509,6 +514,11 @@
       "version": "4.0.2",
       "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-4.0.2.tgz",
       "integrity": "sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg=="
+    },
+    "webpack-sort-chunks": {
+      "version": "0.1.0",
+      "resolved": "https://registry.npmjs.org/webpack-sort-chunks/-/webpack-sort-chunks-0.1.0.tgz",
+      "integrity": "sha1-oClSh3iP4b1H4rvOqnProTAl6jA="
     },
     "whatwg-encoding": {
       "version": "1.0.3",
