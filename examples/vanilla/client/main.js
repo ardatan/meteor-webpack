@@ -4,6 +4,9 @@ import {
 import {
     dynamicprint
 } from './dynamicprint';
+import {
+    renderTodos
+} from './todo-list-renderer';
 Meteor.startup(async () => {
     const {
         lazyprint
@@ -11,7 +14,7 @@ Meteor.startup(async () => {
     import ('./lazyprint');
     lazyprint();
     dynamicprint();
-    module.hot.accept('./dynamicprint', () => {
-        dynamicprint();
-    })
+    module.hot.accept('./dynamicprint', dynamicprint);
+    renderTodos();
+    module.hot.accept('./todo-list-renderer', renderTodos);
 })
