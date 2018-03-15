@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const clientConfig = {
     target: 'web',
-    entry: ['./client/main.js', 'webpack-hot-middleware/client'],
+    entry: './client/main.js',
     devtool: 'inline-source-map',
     devServer: {
         hot: true
@@ -21,7 +21,7 @@ const clientConfig = {
 
 const serverConfig = {
     target: 'node',
-    entry: ['./server/main.js'],
+    entry: './server/main.js',
     devtool: 'inline-source-map',
     externals: [
         resolveExternals

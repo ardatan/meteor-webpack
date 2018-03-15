@@ -16,6 +16,26 @@ You are to free to choose the directory structure in your project, Webpack will 
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
 - If you have seperate client and server codes, you have to declare two configurations like we have in our example.
 
+## Webpack Dev Middleware
+If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field and define `publicPath`;
+```
+    devServer: {}
+```
+and
+```
+    output: {
+        publicPath: '/'
+    },
+```
+then you have to add another atmosphere package to packages;
+```
+    meteor add webpack-dev-middleware
+```
+don't forget to install `webpack-dev-middleware` package from NPM;
+```
+    npm install webpack-dev-middleware --save
+```
+
 ## Hot Module Replacement
 - Process is the same with Webpack; so you have to just change your configuration;
 add `hot` field which is `true`,
@@ -29,10 +49,6 @@ and add the necessary plugin
     plugins: {
         new webpack.HotModuleReplacementPlugin()
     }
-```
-and add another entry module,`webpack-hot-middleware`, in your client configuration
-```
-    entry: ['./client/main.js', 'webpack-hot-middleware/client']
 ```
 - Then install `webpack-dev-middleware` and `webpack-hot-middleware` in your project.
 

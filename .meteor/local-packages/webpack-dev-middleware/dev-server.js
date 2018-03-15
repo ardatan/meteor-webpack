@@ -37,9 +37,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
 
         webpackConfig.mode = 'development';
         webpackConfig.context = projectPath;
-
+        webpackConfig.entry = [webpackConfig.entry, 'webpack-hot-middleware/client'];
         const compiler = webpack(webpackConfig);
-
         // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
         // configuration file as a base.
         const devMiddlewareInstance = webpackDevMiddleware(compiler, webpackConfig.devServer);
