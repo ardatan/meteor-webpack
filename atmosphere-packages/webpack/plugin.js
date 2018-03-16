@@ -61,11 +61,13 @@ Plugin.registerCompiler({
 
             let targetFile = inputFiles[0];
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
-
+            console.log(targetPlatform + ' compiling')
             if (typeof compilerCache[targetPlatform] === 'undefined') {
                 targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
                 this.constructNewCompilerForTarget(targetPlatform, targetFile)
-            } else if (compilerCache[targetPlatform] == null) {
+            }
+
+            if (compilerCache[targetPlatform] == null) {
                 return;
             } else {
                 targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
@@ -101,26 +103,30 @@ Plugin.registerCompiler({
             const chunks = stats.toJson(chunkOnlyConfig).chunks;
             const outFs = compiler.outputFileSystem;
 
+            const indexPath = path.join(compiler.outputPath, "index.html");
+            if (outFs.existsSync(indexPath)) {
+                let data = outFs.readFileSync(indexPath, 'utf8')
+                data = data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
+                const {
+                    window: {
+                        document
+                    }
+                } = new JSDOM(data);
+                targetFile.addHtml({
+                    data: document.head.innerHTML,
+                    section: 'head'
+                });
+                targetFile.addHtml({
+                    data: document.body.innerHTML,
+                    section: 'body'
+                });
+            }
+
             for (const chunk of chunks) {
                 for (const filePath of chunk.files) {
                     const absoluteFilePath = path.join(compiler.outputPath, filePath);
                     const data = outFs.readFileSync(absoluteFilePath, 'utf8');
-                    if (filePath.endsWith('html')) {
-                        data = data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
-                        const {
-                            window: {
-                                document
-                            }
-                        } = new JSDOM(data);
-                        targetFile.addHtml({
-                            data: document.head.innerHTML,
-                            section: 'head'
-                        });
-                        targetFile.addHtml({
-                            data: document.body.innerHTML,
-                            section: 'body'
-                        });
-                    } else if (chunk.initial) {
+                    if (chunk.initial && filePath.endsWith('.js')) {
                         targetFile.addJavaScript({
                             path: filePath,
                             hash: chunk.hash,

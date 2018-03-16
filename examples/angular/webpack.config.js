@@ -9,6 +9,9 @@ const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 const clientConfig = {
     entry: './client/index.ts',
     devtool: 'nosources-source-map',
+    devServer: {
+
+    },
     module: {
         rules: [
             {
@@ -36,7 +39,6 @@ const clientConfig = {
             skipCodeGeneration: process.env.NODE_ENV !== 'production'
         }),
         new HtmlWebpackPlugin({
-            hash: true,
             template: './client/index.html'
         })
     ],

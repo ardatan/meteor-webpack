@@ -12,3 +12,4 @@ standard-minifier-css@1.4.0   # CSS minifier run for production mode
 standard-minifier-js@2.3.1    # JS minifier run for production mode
 
 webpack
+webpack-dev-middleware
