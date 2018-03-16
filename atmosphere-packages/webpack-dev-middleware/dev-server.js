@@ -2,11 +2,6 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     const path = Npm.require('path');
 
     const webpack = require('webpack');
-    const webpackDevMiddleware = require('webpack-dev-middleware');
-    const webpackHotMiddleware = require('webpack-hot-middleware');
-    const {
-        JSDOM
-    } = require('jsdom');
     let allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
 
     if (!(allWebpackConfigs instanceof Array)) {
@@ -25,7 +20,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         }
     })
 
-    if (webpackConfig) {
+    if (webpackConfig && webpackConfig.devServer) {
+        const webpackDevMiddleware = require('webpack-dev-middleware');
         const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
         webpackConfig.mode = 'development';
@@ -67,16 +63,17 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
         // configuration file as a base.
         const devMiddlewareInstance = webpackDevMiddleware(compiler, webpackConfig.devServer);
+        const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
+        const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
         WebApp.connectHandlers.use((req, res, next) => {
             devMiddlewareInstance(req, {
                 end(content) {
                     if (/<[a-z][\s\S]*>/i.test(content) && !req.url.endsWith('js')) {
                         WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
-                            const {
-                                window
-                            } = new JSDOM(content);
-                            data.dynamicHead = window.document.head.innerHTML.split('src').join('defer src');
-                            data.dynamicBody = window.document.body.innerHTML.split('src').join('defer src');
+                            const head = HEAD_REGEX.exec(content)[1];
+                            data.dynamicHead = head.split('src').join('defer src');
+                            const body = BODY_REGEX.exec(content)[1];
+                            data.dynamicBody = body.split('src').join('defer src');
                         })
                         next();
                     } else {
@@ -89,6 +86,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             }, next)
         });
         if (webpackConfig.devServer && webpackConfig.devServer.hot) {
+            const webpackHotMiddleware = require('webpack-hot-middleware');
             WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
         }
     }

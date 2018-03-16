@@ -2,7 +2,6 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { AngularCompilerPlugin } = require('@ngtools/webpack');
 const webpack = require('webpack');
-const WebpackNodeServerPlugin = require('webpack-node-server-plugin')
 
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
