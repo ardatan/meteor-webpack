@@ -7,27 +7,16 @@ import { Todos } from '../../imports/todos';
 
 @Component({
     selector: 'app',
-    template: `
-        <h1>Hello World</h1>
-        <form>
-            <input name="todo" [(ngModel)]="newTodoValue">
-            <input type="submit" (click)="addTodo(newTodoValue)">
-        </form>
-        <ul>
-            <li *ngFor="let todo of todos | async">
-                {{todo.value}}
-                <button (click)="removeTodo(todo._id)">
-                    Remove
-                </button>
-            </li>
-        </ul>
-    `
+    templateUrl: './app.html'
 })
 export class AppComponent implements OnInit {
     newTodoValue: string;
     todos: Observable<Todo[]>;
+    greeting: Observable<string>;
     ngOnInit() {
+        alert('Hello');
         this.todos = MeteorObservable.subscribe('todos').switchMap(() => Todos.find());
+        this.greeting = MeteorObservable.call('greeting');
     }
     addTodo(todoValue) {
         Meteor.call('addTodo', todoValue);

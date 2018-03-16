@@ -8,10 +8,10 @@ Plugin.registerCompiler({
     const {
         JSDOM
     } = Npm.require('jsdom');
+    const compilerCache = {};
     return {
-        processFilesForTarget(inputFiles) {
-            const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
-            const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
+
+        constructNewCompilerForTarget(targetPlatform, targetFile) {
 
             let allWebpackConfigs = requireFromString(targetFile.getContentsAsString());
             if (!(allWebpackConfigs instanceof Array)) {
@@ -21,18 +21,19 @@ Plugin.registerCompiler({
             let webpackConfig = allWebpackConfigs.find(webpackConfig => {
                 if (webpackConfig.target) {
                     if (webpackConfig.target == targetPlatform) {
-                        if (targetPlatform == 'web') {
-                            return (process.env.NODE_ENV == 'production');
-                        } else {
-                            return true;
-                        }
+                        return true;
                     } else {
                         return false;
                     }
                 } else if (targetPlatform == 'web') {
-                    return (process.env.NODE_ENV == 'production');
+                    return true;
                 }
             })
+
+            if (targetPlatform == 'web' && process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
+                compilerCache[targetPlatform] = null;
+                return;
+            }
 
             if (webpackConfig) {
 
@@ -49,88 +50,89 @@ Plugin.registerCompiler({
                         return true;
                     }
                 };
-                webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
+                webpackConfig.mode = process.NODE_ENV == 'production' ? 'production' : 'development';
                 webpackConfig.externals = webpackConfig.externals || [];
                 webpackConfig.externals.push(resolveExternals);
-                const compiler = webpack(webpackConfig);
-                const outFs = new MemoryFS();
-                compiler.outputFileSystem = outFs;
-                const stats = new Promise((resolve, reject) => compiler.run((err, stats) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    if (stats) {
-                        console.log(stats.toString({
-                            colors: true
-                        }));
-                    }
-                    resolve(stats);
-                })).await();
-                const chunkOnlyConfig = {
-                    assets: false,
-                    cached: false,
-                    children: false,
-                    chunks: true,
-                    chunkModules: false,
-                    chunkOrigins: false,
-                    errorDetails: false,
-                    hash: false,
-                    modules: false,
-                    reasons: false,
-                    source: false,
-                    timings: false,
-                    version: false
-                };
-                const chunks = stats.toJson(chunkOnlyConfig).chunks;
-                const indexHtmlFilePath = path.join(compiler.outputPath, 'index.html');
-                if (webpackConfig.target == 'web' && outFs.existsSync(indexHtmlFilePath)) {
-                    let indexHtmlFileContent = outFs.readFileSync(indexHtmlFilePath, 'utf8');
-                    // Load every JavaScript file after Meteor's Client Bundle load
-                    indexHtmlFileContent = indexHtmlFileContent.replace('src', 'async src');
-                    const {
-                        window: {
-                            document
-                        }
-                    } = new JSDOM(indexHtmlFileContent);
-                    targetFile.addHtml({
-                        data: document.head.innerHTML,
-                        section: 'head'
-                    });
-                    targetFile.addHtml({
-                        data: document.body.innerHTML,
-                        section: 'body'
-                    });
-                    //serve all files without adding Meteor's Bundler
-                    for (const chunk of chunks) {
-                        for (const filePath of chunk.files) {
-                            const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                            const data = outFs.readFileSync(absoluteFilePath, 'utf8');
-                            targetFile.addAsset({
-                                path: filePath,
-                                hash: chunk.hash,
-                                data
-                            });
-                        }
-                    }
-                } else {
-                    for (const chunk of chunks) {
-                        for (const filePath of chunk.files) {
-                            const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                            const data = outFs.readFileSync(absoluteFilePath, 'utf8');
-                            if (chunk.initial) {
-                                targetFile.addJavaScript({
-                                    path: filePath,
-                                    hash: chunk.hash,
-                                    data
-                                });
-                            } else {
-                                targetFile.addAsset({
-                                    path: filePath,
-                                    hash: chunk.hash,
-                                    data
-                                });
+                compilerCache[targetPlatform] = webpack(webpackConfig);
+                compilerCache[targetPlatform].outputFileSystem = new MemoryFS();
+            }
+        },
+        processFilesForTarget(inputFiles) {
+
+            let targetFile = inputFiles[0];
+            const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
+
+            if (typeof compilerCache[targetPlatform] === 'undefined') {
+                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
+                this.constructNewCompilerForTarget(targetPlatform, targetFile)
+            } else if (compilerCache[targetPlatform] == null) {
+                return;
+            } else {
+                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
+            }
+
+            const compiler = compilerCache[targetPlatform];
+            const stats = new Promise((resolve, reject) => compiler.run((err, stats) => {
+                if (err) {
+                    reject(err);
+                }
+                if (stats) {
+                    console.log(stats.toString({
+                        colors: true
+                    }));
+                }
+                resolve(stats);
+            })).await();
+            const chunkOnlyConfig = {
+                assets: false,
+                cached: false,
+                children: false,
+                chunks: true,
+                chunkModules: false,
+                chunkOrigins: false,
+                errorDetails: false,
+                hash: false,
+                modules: false,
+                reasons: false,
+                source: false,
+                timings: false,
+                version: false
+            };
+            const chunks = stats.toJson(chunkOnlyConfig).chunks;
+            const outFs = compiler.outputFileSystem;
+
+            for (const chunk of chunks) {
+                for (const filePath of chunk.files) {
+                    const absoluteFilePath = path.join(compiler.outputPath, filePath);
+                    const data = outFs.readFileSync(absoluteFilePath, 'utf8');
+                    if (filePath.endsWith('html')) {
+                        data = data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
+                        const {
+                            window: {
+                                document
                             }
-                        }
+                        } = new JSDOM(data);
+                        targetFile.addHtml({
+                            data: document.head.innerHTML,
+                            section: 'head'
+                        });
+                        targetFile.addHtml({
+                            data: document.body.innerHTML,
+                            section: 'body'
+                        });
+                    } else if (chunk.initial) {
+                        targetFile.addJavaScript({
+                            path: filePath,
+                            hash: chunk.hash,
+                            data,
+                            bare: true
+                        });
+                    } else {
+                        targetFile.addAsset({
+                            path: filePath,
+                            hash: chunk.hash,
+                            data
+                        });
                     }
                 }
             }

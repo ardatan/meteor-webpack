@@ -12,6 +12,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     if (!(allWebpackConfigs instanceof Array)) {
         allWebpackConfigs = [allWebpackConfigs];
     }
+
     let webpackConfig = allWebpackConfigs.find(webpackConfig => {
         if (webpackConfig.target) {
             if (webpackConfig.target == 'web') {
@@ -65,7 +66,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         const compiler = webpack(webpackConfig);
         // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
         // configuration file as a base.
-        const devMiddlewareInstance = Meteor.bindEnvironment(webpackDevMiddleware(compiler, webpackConfig.devServer));
+        const devMiddlewareInstance = webpackDevMiddleware(compiler, webpackConfig.devServer);
         WebApp.connectHandlers.use((req, res, next) => {
             devMiddlewareInstance(req, {
                 end(content) {
@@ -89,10 +90,6 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         });
         if (webpackConfig.devServer && webpackConfig.devServer.hot) {
             WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
-        } else {
-            devMiddlewareInstance.waitUntilValid(() => {
-                WebAppInternals.reloadClientPrograms();
-            });
         }
     }
 

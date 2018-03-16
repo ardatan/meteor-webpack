@@ -6,5 +6,5 @@ Package.describe({
 Package.onUse(function (api) {
     api.use('webapp', 'server');
     api.use('modules', 'server');
-    api.mainModule('dev-server.js', 'server');
+    api.addFiles('dev-server.js', 'server');
 });

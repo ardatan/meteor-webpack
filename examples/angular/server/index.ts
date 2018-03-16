@@ -1,4 +1,5 @@
 import './addTodo';
 import './removeTodo';
 import './todos';
-console.log("Selam cocuklar");
+import './greeting';
+console.log('Selam');

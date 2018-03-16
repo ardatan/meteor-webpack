@@ -1,0 +1,13 @@
+<h1>{{greeting | async}}</h1>
+<form>
+    <input name="todo" [(ngModel)]="newTodoValue">
+    <input type="submit" (click)="addTodo(newTodoValue)">
+</form>
+<ul>
+    <li *ngFor="let todo of todos | async">
+        {{todo.value}}
+        <button (click)="removeTodo(todo._id)">
+            Remove
+        </button>
+    </li>
+</ul>
