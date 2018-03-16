@@ -7,32 +7,24 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     const {
         JSDOM
     } = require('jsdom');
-    const allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
-    let webpackConfig = allWebpackConfigs;
-    if (allWebpackConfigs instanceof Array) {
-        const target = 'web';
-        webpackConfig = allWebpackConfigs.find(webpackConfig => {
-            if (webpackConfig.target) {
-                if (webpackConfig.target == target) {
-                    if (webpackConfig.devServer) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                if (webpackConfig.devServer) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        })
-    }
+    let allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
 
-    if (webpackConfig && webpackConfig.devServer) {
+    if (!(allWebpackConfigs instanceof Array)) {
+        allWebpackConfigs = [allWebpackConfigs];
+    }
+    let webpackConfig = allWebpackConfigs.find(webpackConfig => {
+        if (webpackConfig.target) {
+            if (webpackConfig.target == 'web') {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    })
+
+    if (webpackConfig) {
         const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
         webpackConfig.mode = 'development';
@@ -55,7 +47,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         webpackConfig.externals.push(resolveExternals);
         webpackConfig.context = projectPath;
 
-        if (webpackConfig.devServer.hot) {
+        if (webpackConfig.devServer && webpackConfig.devServer.hot) {
+
             if (webpackConfig.entry instanceof Array || typeof webpackConfig.entry === 'string') {
                 if (!(webpackConfig.entry instanceof Array)) {
                     webpackConfig.entry = [webpackConfig.entry];
@@ -72,11 +65,11 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         const compiler = webpack(webpackConfig);
         // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
         // configuration file as a base.
-        const devMiddlewareInstance = webpackDevMiddleware(compiler, webpackConfig.devServer);
+        const devMiddlewareInstance = Meteor.bindEnvironment(webpackDevMiddleware(compiler, webpackConfig.devServer));
         WebApp.connectHandlers.use((req, res, next) => {
             devMiddlewareInstance(req, {
                 end(content) {
-                    if (content.includes('<html>')) {
+                    if (/<[a-z][\s\S]*>/i.test(content) && !req.url.endsWith('js')) {
                         WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
                             const {
                                 window
@@ -94,8 +87,12 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 }
             }, next)
         });
-        if (webpackConfig.devServer.hot) {
+        if (webpackConfig.devServer && webpackConfig.devServer.hot) {
             WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
+        } else {
+            devMiddlewareInstance.waitUntilValid(() => {
+                WebAppInternals.reloadClientPrograms();
+            });
         }
     }
 
