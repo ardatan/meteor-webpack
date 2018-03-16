@@ -61,7 +61,7 @@ Plugin.registerCompiler({
 
             let targetFile = inputFiles[0];
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
-            console.log(targetPlatform + ' compiling')
+
             if (typeof compilerCache[targetPlatform] === 'undefined') {
                 targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
                 this.constructNewCompilerForTarget(targetPlatform, targetFile)

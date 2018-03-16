@@ -14,7 +14,6 @@ export class AppComponent implements OnInit {
     todos: Observable<Todo[]>;
     greeting: Observable<string>;
     ngOnInit() {
-        alert('Hello');
         this.todos = MeteorObservable.subscribe('todos').switchMap(() => Todos.find());
         this.greeting = MeteorObservable.call('greeting');
     }
