@@ -7,4 +7,4 @@ Meteor.methods({
             value: todoValue
         });
     }
-})
+});

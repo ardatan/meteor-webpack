@@ -10,7 +10,7 @@ const clientConfig = {
     entry: './client/index.ts',
     devtool: 'nosources-source-map',
     devServer: {
-
+        historyApiFallback: true
     },
     module: {
         rules: [
@@ -25,12 +25,6 @@ const clientConfig = {
         ]
     },
     plugins: [
-        new webpack.ContextReplacementPlugin(
-            // The (\\|\/) piece accounts for path separators in *nix and Windows
-            /\@angular(\\|\/)core(\\|\/)esm5/,
-            path.join(projectPath, './client'), // location of your src
-            {} // a map of your routes 
-        ),
         new AngularCompilerPlugin({
             tsConfigPath: path.join(projectPath, './tsconfig.json'),
             mainPath: path.join(projectPath, './client/index.ts'),
@@ -40,7 +34,8 @@ const clientConfig = {
         }),
         new HtmlWebpackPlugin({
             template: './client/index.html'
-        })
+        }),
+        new webpack.ProgressPlugin()
     ],
     resolve: {
         extensions: ['.tsx', '.ts', '.js']
@@ -62,6 +57,9 @@ const serverConfig = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js']
     },
+    plugins: [
+        new webpack.ProgressPlugin()
+    ],
     output: {
         filename: 'bundle.js'
     }
