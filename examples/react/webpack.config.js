@@ -1,7 +1,9 @@
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const clientConfig = {
     entry: [
+        'react-hot-loader/patch',
       './client/main.jsx'
     ],
     module: {
@@ -16,7 +18,8 @@ const clientConfig = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './client/main.html'
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ],
     resolve: {
       extensions: ['*', '.js', '.jsx']
@@ -27,7 +30,8 @@ const clientConfig = {
       filename: 'bundle.js'
     },
     devServer: {
-      contentBase: './dist'
+      contentBase: './dist',
+      hot: true
     }
   };
 
