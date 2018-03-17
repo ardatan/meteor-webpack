@@ -1,8 +1,27 @@
-# Meteor with Webpack
 
-This project includes an example project and a compiler package that replaces Meteor's bundler with modern web project bundler Webpack.
+
+# Meteor-Webpack
+Meteor-Webpack provides you a development environment that integrates modern web bundler Webpack, and modern perfect full-stack JavaScript framework Meteor.
+
+You need just one atmosphere package to start;
+`webpack`
+
+This project includes some examples with popular Frontend frameworks and a compiler package that replaces Meteor's bundler with modern web project bundler Webpack.
 You have to create a `webpack.config.js` file that has the compilation configurations for both client and server code.
 You are to free to choose the directory structure in your project, Webpack will compile your project regarding to your entry definition.
+
+#### Feel free like you are working in a Webpack CLI
+Meteor-Webpack would make you feel you are using Webpack CLI. Just use same cases in Webpack's own documentation.
+
+#### Feel free like you are working in a regular Meteor environment as well
+Meteor-Webpack can resolve any atmosphere packages and Meteor modules like you are using without Meteor-Webpack
+
+## Try our examples with your favorite Frontend framework
+
+ - [Vanilla](https://github.com/ardatan/meteor-webpack/tree/master/examples/vanilla)
+ - [Angular](https://github.com/ardatan/meteor-webpack/tree/master/examples/angular)
+ - [React](https://github.com/ardatan/meteor-webpack/tree/master/examples/react)
+ - [Vue](https://github.com/ardatan/meteor-webpack/tree/master/examples/vue)
 
 ## Why Webpack
 
@@ -12,6 +31,20 @@ You are to free to choose the directory structure in your project, Webpack will 
 - You can migrate your existing Webpack project to Meteor easily.
 - You can use your existing Webpack loaders and plugins without a great modification including the ones don't exist as an atmosphere package.
 - Hot Module Replacement without reloading in each compilation using Webpack Dev Middleware together with Meteor's `connect`-compatible HTTP Server
+- Comparisons with other bundlers are explained [here](https://webpack.js.org/comparison/).
+
+## Comparison with other solutions in Meteor
+
+### Regular Meteor Bundler
+Regular Meteor Bundler uses `babel` which tranpiles your ES2015 syntax to ES5 even imports to `CommonJS` which creates some limitation for you. For instance, you cannot use ES2015 modules, then you need to import UMD modules which would probably contain unused submodules of this module.
+Despite you can use atmosphere packages with Meteor-Webpack, you don't need to add extra atmosphere packages. For an extra compiler such as sass, less and pug etc; you can just install necessary webpack loader plugins, and add them into `webpack.config.js`. Meteor-Webpack runs exactly same way with `webpack-dev-server`.
+
+### [Meteor Client Bundler](https://github.com/Urigo/meteor-client-bundler)
+As in its documentation;
+`meteor-client-bundler` is a module bundler which will take a bunch of Atmosphere package and put them into a single module, so we can load Meteor's client scripts regardless of what framework we're using to run our server. 
+But you cannot use this client bundle with Server Side Rendering, and you must have two different projects which run on two different servers.
+With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `create-react-app` and any other CLI tools', then easily use it with Meteor.
+
 
 ## Before you start
 
@@ -20,7 +53,7 @@ You are to free to choose the directory structure in your project, Webpack will 
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
 - If you have seperate client and server codes, you have to declare two configurations like we have in our example.
 
-## Webpack Dev Middleware
+## [Webpack Dev Middleware](https://github.com/webpack/webpack-dev-middleware)
 
 If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field and define `publicPath`;
 
@@ -48,7 +81,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     npm install webpack-dev-middleware --save
 ```
 
-## Hot Module Replacement
+## [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
 
 - Process is the same with Webpack; so you have to just change your configuration;
 
@@ -68,4 +101,5 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     }
 ```
 
-- Then install `webpack-dev-middleware` and `webpack-hot-middleware` in your project.
+- Then install `webpack-dev-middleware` and [`webpack-hot-middleware`](https://github.com/glenjamin/webpack-hot-middleware) in your project.
+
