@@ -1,0 +1,29 @@
+{
+  "name": "meteor-vue2-example",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.42",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "bcrypt": "^1.0.2",
+    "cross-env": "^5.1.4",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "html-webpack-plugin": "^3.0.6",
+    "meteor-node-stubs": "~0.2.0",
+    "vue": "^2.1.10",
+    "vue-loader": "^14.2.1",
+    "vue-meta": "^0.5.3",
+    "vue-meteor-tracker": "^1.0.3",
+    "vue-style-loader": "^4.0.2",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.1.1",
+    "webpack-dev-middleware": "^3.0.1",
+    "webpack-hot-middleware": "^2.21.2"
+  }
+}

@@ -1,1 +1,1 @@
-Add Angular, Vue, React, Polymer, Web Components examples
+Add Polymer, Web Components examples
