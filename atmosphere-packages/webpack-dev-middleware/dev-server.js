@@ -85,7 +85,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 }
             }, next)
         });
-        if (webpackConfig.devServer && webpackConfig.devServer.hot) {
+        if (webpackConfig.devServer.hot) {
             const webpackHotMiddleware = require('webpack-hot-middleware');
             WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
         }

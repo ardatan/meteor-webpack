@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { switchMap } from 'rxjs/operators';
 import { Todo } from '../../imports/todo';
 
-import { MeteorObservable } from 'meteor-rxjs/dist/MeteorObservable';
+import { MeteorObservable } from 'meteor-rxjs';
 import { Todos } from '../../imports/todos';
 
 @Component({
@@ -14,7 +15,7 @@ export class AppComponent implements OnInit {
     todos: Observable<Todo[]>;
     greeting: Observable<string>;
     ngOnInit() {
-        this.todos = MeteorObservable.subscribe('todos').switchMap(() => Todos.find());
+        this.todos = MeteorObservable.subscribe('todos').pipe(switchMap(() => Todos.find()));
         this.greeting = MeteorObservable.call('greeting');
     }
     addTodo(todoValue) {
