@@ -1,6 +1,5 @@
-
-
 # Meteor-Webpack
+
 Meteor-Webpack provides you a development environment that integrates modern web bundler Webpack, and modern perfect full-stack JavaScript framework Meteor.
 
 You need just one atmosphere package to start;
@@ -10,18 +9,22 @@ This project includes some examples with popular Frontend frameworks and a compi
 You have to create a `webpack.config.js` file that has the compilation configurations for both client and server code.
 You are to free to choose the directory structure in your project, Webpack will compile your project regarding to your entry definition.
 
-#### Feel free like you are working in a Webpack CLI
+## Simple Migration
+
+### Feel free like you are working in a Webpack CLI
+
 Meteor-Webpack would make you feel you are using Webpack CLI. Just use same cases in Webpack's own documentation.
 
-#### Feel free like you are working in a regular Meteor environment as well
+### Feel free like you are working in a regular Meteor environment as well
+
 Meteor-Webpack can resolve any atmosphere packages and Meteor modules like you are using without Meteor-Webpack
 
 ## Try our examples with your favorite Frontend framework
 
- - [Vanilla](https://github.com/ardatan/meteor-webpack/tree/master/examples/vanilla)
- - [Angular](https://github.com/ardatan/meteor-webpack/tree/master/examples/angular)
- - [React](https://github.com/ardatan/meteor-webpack/tree/master/examples/react)
- - [Vue](https://github.com/ardatan/meteor-webpack/tree/master/examples/vue)
+- [Vanilla](https://github.com/ardatan/meteor-webpack/tree/master/examples/vanilla)
+- [Angular](https://github.com/ardatan/meteor-webpack/tree/master/examples/angular)
+- [React](https://github.com/ardatan/meteor-webpack/tree/master/examples/react)
+- [Vue](https://github.com/ardatan/meteor-webpack/tree/master/examples/vue)
 
 ## Why Webpack
 
@@ -64,13 +67,13 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
     }
     const serverConfig = {
         //...
-
+        target: 'node',
     }
 ```
 
-# Client Configuration
+### Client Configuration
 
-## [Webpack Dev Middleware](https://github.com/webpack/webpack-dev-middleware)
+#### [Webpack Dev Middleware](https://github.com/webpack/webpack-dev-middleware)
 
 If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field and define `publicPath` in the client configuration;
 
@@ -98,7 +101,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     npm install webpack-dev-middleware --save
 ```
 
-## [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
+#### [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
 
 - Process is the same with Webpack; so you have to just change your client configuration;
 
@@ -120,14 +123,14 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 
 - Then install `webpack-dev-middleware` and [`webpack-hot-middleware`](https://github.com/glenjamin/webpack-hot-middleware) in your project.
 
-# Server Configuration
+### Server Configuration
 
-## Loading NPM modules on runtime instead of compiling them by Meteor
+#### Loading NPM modules on runtime instead of compiling them by Meteor
 
 - Install `webpack-node-externals`
 
 ```bash
-    npm install webpack-node-externals
+    npm install webpack-node-externals --save
 ```
 
 - Add externals into the server configuration in `webpack.config.js`
