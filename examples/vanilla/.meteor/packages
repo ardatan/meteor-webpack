@@ -15,4 +15,3 @@ standard-minifier-js@2.3.1    # JS minifier run for production mode
 
 webpack
 webpack-dev-middleware
-modules

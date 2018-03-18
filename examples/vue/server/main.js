@@ -1,5 +1,9 @@
-import { Meteor } from 'meteor/meteor';
-import {Messages} from '../imports/collections';
+import {
+  Meteor
+} from 'meteor/meteor';
+import {
+  Messages
+} from '../imports/collections';
 
 Meteor.startup(() => {
   // code to run on server at startup
@@ -18,8 +22,6 @@ Meteor.methods({
 });
 
 
-Meteor.publish('messages', function() {
+Meteor.publish('messages', function () {
   return Messages.find();
 });
-
-

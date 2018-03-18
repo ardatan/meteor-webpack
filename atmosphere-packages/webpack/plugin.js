@@ -125,7 +125,11 @@ Plugin.registerCompiler({
             for (const chunk of chunks) {
                 for (const filePath of chunk.files) {
                     const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                    const data = outFs.readFileSync(absoluteFilePath, 'utf8');
+                    let data = '';
+                    if (targetPlatform) {
+                        data = 'const require = Npm.require;'
+                    }
+                    data += outFs.readFileSync(absoluteFilePath, 'utf8');
                     if (chunk.initial && filePath.endsWith('.js')) {
                         targetFile.addJavaScript({
                             path: filePath,

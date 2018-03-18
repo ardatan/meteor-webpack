@@ -36,15 +36,16 @@ Meteor-Webpack can resolve any atmosphere packages and Meteor modules like you a
 ## Comparison with other solutions in Meteor
 
 ### Regular Meteor Bundler
+
 Regular Meteor Bundler uses `babel` which tranpiles your ES2015 syntax to ES5 even imports to `CommonJS` which creates some limitation for you. For instance, you cannot use ES2015 modules, then you need to import UMD modules which would probably contain unused submodules of this module.
 Despite you can use atmosphere packages with Meteor-Webpack, you don't need to add extra atmosphere packages. For an extra compiler such as sass, less and pug etc; you can just install necessary webpack loader plugins, and add them into `webpack.config.js`. Meteor-Webpack runs exactly same way with `webpack-dev-server`.
 
 ### [Meteor Client Bundler](https://github.com/Urigo/meteor-client-bundler)
+
 As in its documentation;
 `meteor-client-bundler` is a module bundler which will take a bunch of Atmosphere package and put them into a single module, so we can load Meteor's client scripts regardless of what framework we're using to run our server. 
 But you cannot use this client bundle with Server Side Rendering, and you must have two different projects which run on two different servers.
 With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `create-react-app` and any other CLI tools', then easily use it with Meteor.
-
 
 ## Before you start
 
@@ -53,9 +54,25 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
 - If you have seperate client and server codes, you have to declare two configurations like we have in our example.
 
+## Seperating Client and Server Configuration
+
+- You have to add `target` field by `node` value in the configuration object you want to use as server's;
+
+```js
+    const clientConfig = {
+        //...
+    }
+    const serverConfig = {
+        //...
+
+    }
+```
+
+# Client Configuration
+
 ## [Webpack Dev Middleware](https://github.com/webpack/webpack-dev-middleware)
 
-If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field and define `publicPath`;
+If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field and define `publicPath` in the client configuration;
 
 ```js
     devServer: {}
@@ -83,7 +100,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 
 ## [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
 
-- Process is the same with Webpack; so you have to just change your configuration;
+- Process is the same with Webpack; so you have to just change your client configuration;
 
 - Add `hot` field which is `true`,
 
@@ -103,3 +120,18 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 
 - Then install `webpack-dev-middleware` and [`webpack-hot-middleware`](https://github.com/glenjamin/webpack-hot-middleware) in your project.
 
+# Server Configuration
+
+## Loading NPM modules on runtime instead of compiling them by Meteor
+
+- Install `webpack-node-externals`
+
+```bash
+    npm install webpack-node-externals
+```
+
+- Add externals into the server configuration in `webpack.config.js`
+
+```js
+    externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
+```

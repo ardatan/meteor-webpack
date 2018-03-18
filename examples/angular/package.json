@@ -2,7 +2,7 @@
   "name": "angular",
   "private": true,
   "scripts": {
-    "start": "METEOR_PACKAGE_DIRS=\"../../atmosphere-packages\" meteor run"
+    "start": "meteor run"
   },
   "dependencies": {
     "@angular/common": "^5.2.9",
@@ -20,7 +20,7 @@
     "raw-loader": "^0.5.1",
     "rxjs": "^5.5.7",
     "ts-loader": "^4.0.1",
-    "typescript": "^2.7.2",
+    "typescript": "2.4.2",
     "webpack": "^4.1.1",
     "webpack-dev-middleware": "^3.0.1",
     "zone.js": "^0.8.20"

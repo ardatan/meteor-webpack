@@ -68,7 +68,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         WebApp.connectHandlers.use((req, res, next) => {
             devMiddlewareInstance(req, {
                 end(content) {
-                    if (/<[a-z][\s\S]*>/i.test(content) && !req.url.endsWith('js')) {
+                    if (/<[a-z][\s\S]*>/i.test(content) && !req.url.includes('.js')) {
                         WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
                             const head = HEAD_REGEX.exec(content)[1];
                             data.dynamicHead = data.dynamicHead || '';
