@@ -1,5 +1,5 @@
 Package.describe({
-    name: 'webpack'
+    name: 'ardatan:webpack'
 });
 
 Package.registerBuildPlugin({

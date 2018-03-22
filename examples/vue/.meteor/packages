@@ -15,8 +15,8 @@ standard-minifier-css@1.4.0   # CSS minifier run for production mode
 standard-minifier-js@2.3.1    # JS minifier run for production mode
 shell-server@0.3.1            # Server-side component of the `meteor shell` command
 
-webpack
-webpack-dev-middleware
+ardatan:webpack
+ardatan:webpack-dev-middleware
 
 session@1.1.7
 accounts-password@1.5.0

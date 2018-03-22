@@ -1,5 +1,5 @@
 Package.describe({
-    name: 'webpack-dev-middleware',
+    name: 'ardatan:webpack-dev-middleware',
     debugOnly: true
 });
 
