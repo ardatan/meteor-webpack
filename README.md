@@ -3,7 +3,7 @@
 Meteor-Webpack provides you a development environment that integrates modern web bundler Webpack, and modern perfect full-stack JavaScript framework Meteor.
 
 You need just one atmosphere package to start;
-`webpack`
+`ardatan:webpack`
 
 This project includes some examples with popular Frontend frameworks and a compiler package that replaces Meteor's bundler with modern web project bundler Webpack.
 You have to create a `webpack.config.js` file that has the compilation configurations for both client and server code.
@@ -52,8 +52,9 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
 
 ## Before you start
 
+- Remove existing compiler packages; `meteor remove ecmascript es5-shim static-html`
 - You have to install webpack and necessary plugins with your favorite package manager; `yarn` or `npm`
-- Add Meteor package `webpack` by the command `meteor add webpack`
+- Add Meteor package `webpack` by the command `meteor add ardatan:webpack`
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
 - If you have seperate client and server codes, you have to declare two configurations like we have in our example.
 
@@ -92,7 +93,7 @@ and
 then you have to add another atmosphere package to packages;
 
 ```bash
-    meteor add webpack-dev-middleware
+    meteor add ardatan:webpack-dev-middleware
 ```
 
 don't forget to install `webpack-dev-middleware` package from NPM;
