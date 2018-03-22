@@ -1,9 +1,14 @@
 Plugin.registerCompiler({
     extensions: ['js', 'jsx', 'ts', 'tsx', 'html'],
 }, function () {
+
     const path = Npm.require('path');
     const requireFromString = Npm.require('require-from-string');
-    const webpack = Npm.require('webpack');
+    try{
+        const webpack = Npm.require('webpack');
+    }catch(e){
+        console.log('You have to install webpack to use this package!')
+    }
     const MemoryFS = Npm.require('memory-fs');
     const {
         JSDOM

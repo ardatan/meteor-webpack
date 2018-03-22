@@ -1,10 +1,14 @@
 Package.describe({
     name: 'ardatan:webpack-dev-middleware',
-    debugOnly: true
+    debugOnly: true,
+    version: '0.0.1',
+    summary: 'Webpack Dev Middleware for Meteor',
+    git: 'https://github.com/ardatan/meteor-webpack',
+    documentation: '../../README.md'
 });
 
 Package.onUse(function (api) {
-    api.use('webapp', 'server');
-    api.use('modules', 'server');
+    api.use('webapp@1.5.0', 'server');
+    api.use('modules@0.11.5', 'server');
     api.addFiles('dev-server.js', 'server');
 });
