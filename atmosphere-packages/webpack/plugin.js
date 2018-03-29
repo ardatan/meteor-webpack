@@ -4,8 +4,9 @@ Plugin.registerCompiler({
 
     const path = Npm.require('path');
     const requireFromString = Npm.require('require-from-string');
+    let webpack;
     try{
-        const webpack = Npm.require('webpack');
+        webpack = Npm.require('webpack');
     }catch(e){
         console.log('You have to install webpack to use this package!')
     }
