@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 
-import { Tasks } from '../api/tasks';
+import { Tasks } from '../../imports/api/tasks';
 
 import Task from './Task';
 import AccountsUIWrapper from './AccountsUIWrapper';

@@ -2,11 +2,12 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 
-import '../imports/startup/accounts-config';
-import App from '../imports/ui/App';
+import App from './ui/App';
 
 Meteor.startup(() => {
   render(<App />, document.getElementById('render-target'));
 });
 
-module.hot.accept();
+if(module.hot){
+  module.hot.accept();
+}

@@ -1,6 +1,6 @@
 Package.describe({
     name: 'ardatan:webpack',
-    version: '0.0.1_1',
+    version: '0.0.2',
     summary: 'Webpack Integration for Meteor',
     git: 'https://github.com/ardatan/meteor-webpack',
     documentation: '../../README.md'
@@ -8,7 +8,6 @@ Package.describe({
 
 Package.registerBuildPlugin({
     name: 'webpack',
-    use: ['modules@0.11.5'],
     sources: ['plugin.js'],
     npmDependencies: {
         "jsdom": "11.6.2",

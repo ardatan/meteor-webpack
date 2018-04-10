@@ -69,14 +69,14 @@ Plugin.registerCompiler({
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
             if (typeof compilerCache[targetPlatform] === 'undefined') {
-                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
+                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().includes('webpack.config'));
                 this.constructNewCompilerForTarget(targetPlatform, targetFile)
             }
 
             if (compilerCache[targetPlatform] == null) {
                 return;
             } else {
-                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith('webpack.config.js'));
+                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().includes('webpack.config.js'));
             }
 
             const compiler = compilerCache[targetPlatform];
@@ -132,26 +132,26 @@ Plugin.registerCompiler({
                 for (const filePath of chunk.files) {
                     const absoluteFilePath = path.join(compiler.outputPath, filePath);
                     let data = '';
-                    if (targetPlatform) {
+                    if (targetPlatform == 'node') {
                         data = 'const require = Npm.require;'
                     }
                     data += outFs.readFileSync(absoluteFilePath, 'utf8');
                     if (chunk.initial && filePath.endsWith('.js')) {
-                        targetFile.addJavaScript({
-                            path: filePath,
-                            hash: chunk.hash,
-                            data,
-                            bare: true
-                        });
-                    } else {
-                        targetFile.addAsset({
-                            path: filePath,
-                            hash: chunk.hash,
-                            data
-                        });
+                            targetFile.addJavaScript({
+                                path: filePath,
+                                hash: chunk.hash,
+                                data,
+                                bare: true
+                            });
+                    } else {                          
+                            targetFile.addAsset({
+                                path: filePath,
+                                hash: chunk.hash,
+                                data
+                            });
+                        }
                     }
                 }
-            }
 
 
         }

@@ -1,8 +1,8 @@
 if (Meteor.isServer && Meteor.isDevelopment) {
     const path = Npm.require('path');
-
-    const webpack = require('webpack');
-    let allWebpackConfigs = Npm.require('../../../../../../webpack.config.js');
+    const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
+    const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
+    const allWebpackConfigs = Npm.require(path.join(projectPath, 'webpack.config.js'), 'utf8');
 
     if (!(allWebpackConfigs instanceof Array)) {
         allWebpackConfigs = [allWebpackConfigs];
@@ -21,8 +21,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     })
 
     if (webpackConfig && webpackConfig.devServer) {
-        const webpackDevMiddleware = require('webpack-dev-middleware');
         const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
+        const webpackDevMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-dev-middleware'))
 
         webpackConfig.mode = 'development';
         webpackConfig.externals = webpackConfig.externals || [];
@@ -88,7 +88,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             }, next)
         });
         if (webpackConfig.devServer.hot) {
-            const webpackHotMiddleware = require('webpack-hot-middleware');
+            const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'))
             WebApp.connectHandlers.use(webpackHotMiddleware(compiler));
         }
     }
