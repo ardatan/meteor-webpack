@@ -13,19 +13,21 @@
     "@angular/platform-browser": "^5.2.9",
     "@angular/platform-browser-dynamic": "^5.2.9",
     "@babel/runtime": "^7.0.0-beta.36",
-    "@ngtools/webpack": "^1.10.2",
-    "html-webpack-plugin": "^3.0.7",
     "meteor-node-stubs": "^0.3.2",
     "meteor-rxjs": "^0.4.8",
-    "raw-loader": "^0.5.1",
     "rxjs": "^5.5.7",
+    "zone.js": "^0.8.20"
+  },
+  "devDependencies": {
+    "@ngtools/webpack": "^1.10.2",
+    "@types/meteor": "^1.4.13",
+    "fork-ts-checker-webpack-plugin": "^0.4.1",
+    "html-webpack-plugin": "^3.0.7",
+    "raw-loader": "^0.5.1",
     "ts-loader": "^4.1.0",
     "typescript": "2.4.2",
     "webpack": "^4.2.0",
     "webpack-dev-middleware": "^3.0.1",
-    "zone.js": "^0.8.20"
-  },
-  "devDependencies": {
-    "@types/meteor": "^1.4.13"
+    "webpack-node-externals": "^1.7.2"
   }
 }

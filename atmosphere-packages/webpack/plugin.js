@@ -99,7 +99,7 @@ Plugin.registerCompiler({
                 chunkModules: false,
                 chunkOrigins: false,
                 errorDetails: false,
-                hash: false,
+                hash: true,
                 modules: false,
                 reasons: false,
                 source: false,
@@ -109,23 +109,25 @@ Plugin.registerCompiler({
             const chunks = stats.toJson(chunkOnlyConfig).chunks;
             const outFs = compiler.outputFileSystem;
 
-            const indexPath = path.join(compiler.outputPath, "index.html");
-            if (outFs.existsSync(indexPath)) {
-                let data = outFs.readFileSync(indexPath, 'utf8')
-                data = data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
-                const {
-                    window: {
-                        document
-                    }
-                } = new JSDOM(data);
-                targetFile.addHtml({
-                    data: document.head.innerHTML,
-                    section: 'head'
-                });
-                targetFile.addHtml({
-                    data: document.body.innerHTML,
-                    section: 'body'
-                });
+            if(targetPlatform !== 'node'){
+                const indexPath = path.join(compiler.outputPath, "index.html");
+                if (outFs.existsSync(indexPath)) {
+                    let data = outFs.readFileSync(indexPath, 'utf8')
+                    data = data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
+                    const {
+                        window: {
+                            document
+                        }
+                    } = new JSDOM(data);
+                    targetFile.addHtml({
+                        data: document.head.innerHTML,
+                        section: 'head'
+                    });
+                    targetFile.addHtml({
+                        data: document.body.innerHTML,
+                        section: 'body'
+                    });
+                }
             }
 
             for (const chunk of chunks) {

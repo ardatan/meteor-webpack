@@ -5,9 +5,7 @@ import { AppComponent } from './app.component';
 
 @NgModule({
     imports: [
-        BrowserModule.withServerTransition({
-            appId: 'meteor-angular'
-        }),
+        BrowserModule,
         FormsModule
     ],
     declarations: [

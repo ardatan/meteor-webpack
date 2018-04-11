@@ -4,6 +4,8 @@ const {
     AngularCompilerPlugin
 } = require('@ngtools/webpack');
 const webpack = require('webpack');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
@@ -51,6 +53,10 @@ const serverConfig = {
         rules: [{
             test: /\.tsx?$/,
             use: 'ts-loader',
+            options: {
+                transpileOnly: true,
+                happyPackMode: true
+            },
             exclude: /node_modules/
         }]
     },
@@ -58,7 +64,11 @@ const serverConfig = {
         extensions: ['.tsx', '.ts', '.js']
     },
     plugins: [
+        new ForkTsCheckerWebpackPlugin(),
         new webpack.ProgressPlugin()
+    ],
+    externals: [
+        nodeExternals()
     ],
     output: {
         filename: 'bundle.js'
