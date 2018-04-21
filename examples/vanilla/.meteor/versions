@@ -1,6 +1,6 @@
 allow-deny@1.1.0
-ardatan:webpack@0.0.1_1
-ardatan:webpack-dev-middleware@0.0.1
+ardatan:webpack@0.0.2
+ardatan:webpack-dev-middleware@0.0.2
 autoupdate@1.4.0
 babel-compiler@7.0.6
 babel-runtime@1.2.2

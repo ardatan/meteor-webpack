@@ -36,7 +36,7 @@ Plugin.registerCompiler({
                 }
             })
 
-            if (targetPlatform == 'web' && process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
+            if (process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
                 compilerCache[targetPlatform] = null;
                 return;
             }
