@@ -65,11 +65,19 @@ Plugin.registerCompiler({
         },
         processFilesForTarget(inputFiles) {
 
-            let targetFile = inputFiles[0];
+            //Find Webpack Configuration File
+            const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().includes('webpack.config'));
+            //Get source hash in order to check if configuration is changed.
+            const sourceHash = targetFile.getSourceHash();
+            //If source hash doesn't match the previous hash, clean the cache.
+            if(compilerCache.sourceHash !== sourceHash){
+                compilerCache = {
+                    sourceHash
+                };
+            }
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
             if (typeof compilerCache[targetPlatform] === 'undefined') {
-                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().includes('webpack.config'));
                 this.constructNewCompilerForTarget(targetPlatform, targetFile)
             }
 

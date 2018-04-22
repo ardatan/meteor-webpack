@@ -12,7 +12,7 @@ Package.registerBuildPlugin({
     npmDependencies: {
         "jsdom": "11.6.2",
         "memory-fs": "0.4.1",
-        "require-from-string": "2.0.1",
+        "require-from-string": "2.0.1"
     }
 });
 
