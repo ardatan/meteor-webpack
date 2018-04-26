@@ -34,6 +34,7 @@ Meteor-Webpack can resolve any atmosphere packages and Meteor modules like you a
 - You can migrate your existing Webpack project to Meteor easily.
 - You can use your existing Webpack loaders and plugins without a great modification including the ones don't exist as an atmosphere package.
 - Hot Module Replacement without reloading in each compilation using Webpack Dev Middleware together with Meteor's `connect`-compatible HTTP Server
+- HMR is available for server-side code, so your re-compiled server-side code will be replaced in 'already running' server without restart. So, the recompilation of server-side code takes less time than regular Meteor bundler's.
 - Comparisons with other bundlers are explained [here](https://webpack.js.org/comparison/).
 
 ## Comparison with other solutions in Meteor
@@ -102,28 +103,6 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     npm install webpack-dev-middleware --save
 ```
 
-#### [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
-
-- Process is the same with Webpack; so you have to just change your client configuration;
-
-- Add `hot` field which is `true`,
-
-```js
-    devServer: {
-        hot: true
-    }
-```
-
-- and add the necessary plugin
-
-```js
-    plugins: {
-        new webpack.HotModuleReplacementPlugin()
-    }
-```
-
-- Then install `webpack-dev-middleware` and [`webpack-hot-middleware`](https://github.com/glenjamin/webpack-hot-middleware) in your project.
-
 ### Server Configuration
 
 #### Loading NPM modules on runtime instead of compiling them by Meteor
@@ -139,3 +118,27 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 ```js
     externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
 ```
+
+### [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
+
+- Process is the same with Webpack; so you have to just change your client and server configuration;
+
+- Add `hot` field for both client and server which is `true`,
+
+```js
+    devServer: {
+        hot: true
+    }
+```
+
+- and add the necessary plugin only for client!
+
+```js
+    plugins: {
+        new webpack.HotModuleReplacementPlugin()
+    }
+```
+
+- Then install `webpack-dev-middleware`,
+- Install client-side HMR middleware [`webpack-hot-middleware`](https://github.com/glenjamin/webpack-hot-middleware) in your project
+- Install server-side HMR middleware [`webpack-hot-server-middleware`](https://github.com/60frames/webpack-hot-server-middleware) in your project
