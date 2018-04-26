@@ -14,7 +14,7 @@ Plugin.registerCompiler({
     const {
         JSDOM
     } = Npm.require('jsdom');
-    const compilerCache = {};
+    const compilerCacheHashMap = {};
     return {
 
         constructNewCompilerForTarget(targetPlatform, targetFile) {
@@ -70,11 +70,11 @@ Plugin.registerCompiler({
             //Get source hash in order to check if configuration is changed.
             const sourceHash = targetFile.getSourceHash();
             //If source hash doesn't match the previous hash, clean the cache.
-            if(compilerCache.sourceHash !== sourceHash){
-                compilerCache = {
-                    sourceHash
-                };
-            }
+
+            compilerCacheHashMap[sourceHash] = compilerCacheHashMap[sourceHash] || {};
+
+            const compilerCache = compilerCacheHashMap[sourceHash];
+
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
             if (typeof compilerCache[targetPlatform] === 'undefined') {
