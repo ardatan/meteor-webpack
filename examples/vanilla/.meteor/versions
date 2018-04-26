@@ -1,8 +1,8 @@
 allow-deny@1.1.0
-ardatan:webpack@0.0.2
-ardatan:webpack-dev-middleware@0.0.2
+ardatan:webpack@0.0.3_1
+ardatan:webpack-dev-middleware@0.0.3_1
 autoupdate@1.4.0
-babel-compiler@7.0.6
+babel-compiler@7.0.8
 babel-runtime@1.2.2
 base64@1.0.11
 binary-heap@1.0.10
@@ -15,7 +15,7 @@ ddp-common@1.4.0
 ddp-server@2.1.2
 diff-sequence@1.1.0
 dynamic-import@0.3.0
-ecmascript@0.10.6
+ecmascript@0.10.8
 ecmascript-runtime@0.5.0
 ecmascript-runtime-client@0.6.2
 ecmascript-runtime-server@0.5.0
@@ -23,7 +23,7 @@ ejson@1.1.0
 es5-shim@4.7.3
 geojson-utils@1.0.10
 hot-code-push@1.0.4
-http@1.4.0
+http@1.4.1
 id-map@1.1.0
 launch-screen@1.1.1
 livedata@1.0.18
@@ -35,9 +35,9 @@ minifier-js@2.3.4
 minimongo@1.4.4
 mobile-experience@1.0.5
 mobile-status-bar@1.0.14
-modules@0.11.5
+modules@0.11.6
 modules-runtime@0.9.2
-mongo@1.4.5
+mongo@1.4.7
 mongo-dev-server@1.1.0
 mongo-id@1.0.7
 npm-mongo@2.2.34

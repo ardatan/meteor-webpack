@@ -108,10 +108,14 @@ function webpackHotServerMiddleware(multiCompiler) {
         const buffer = outputFs.readFileSync(filename);
         Meteor.server.method_handlers = {};
         Meteor.server.publish_handlers = {};
-        const requireFromString =Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
-        interopRequireDefault(
-            requireFromString(buffer.toString(),filename)
-        );
+        try{
+            const requireFromString =Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
+            interopRequireDefault(
+                requireFromString(buffer.toString(),filename)
+            );
+        }catch(e){
+            console.log(e)
+        }
     };
 
     if (multiCompiler.hooks) {

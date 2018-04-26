@@ -1,0 +1,6 @@
+(cd atmosphere-packages/webpack && meteor publish)
+(cd atmosphere-packages/webpack-dev-middleware && meteor publish)
+(cd examples/angular && meteor update --allow-incompatible-update --all-packages)
+(cd examples/react && meteor update --allow-incompatible-update --all-packages)
+(cd examples/vanilla && meteor update --allow-incompatible-update --all-packages)
+(cd examples/vue && meteor update --allow-incompatible-update --all-packages)

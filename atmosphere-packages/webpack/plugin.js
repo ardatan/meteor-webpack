@@ -17,7 +17,7 @@ Plugin.registerCompiler({
     const compilerCacheHashMap = {};
     return {
 
-        constructNewCompilerForTarget(targetPlatform, targetFile) {
+        constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile) {
 
             let allWebpackConfigs = requireFromString(targetFile.getContentsAsString());
             if (!(allWebpackConfigs instanceof Array)) {
@@ -78,7 +78,7 @@ Plugin.registerCompiler({
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
             if (typeof compilerCache[targetPlatform] === 'undefined') {
-                this.constructNewCompilerForTarget(targetPlatform, targetFile)
+                this.constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile)
             }
 
             if (compilerCache[targetPlatform] == null) {

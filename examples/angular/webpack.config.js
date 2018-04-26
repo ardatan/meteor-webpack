@@ -72,6 +72,9 @@ const serverConfig = {
     ],
     output: {
         filename: 'bundle.js'
+    },
+    devServer: {
+      hot: true
     }
 }
 module.exports = [clientConfig, serverConfig];

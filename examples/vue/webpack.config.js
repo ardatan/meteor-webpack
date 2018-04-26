@@ -66,7 +66,10 @@ const clientConfig = {
 
 const serverConfig = {
     entry: './server/main.js',
-    target: 'node'
+    target: 'node',
+    devServer: {
+      hot: true
+    },
 };
 
 module.exports = [clientConfig, serverConfig];
