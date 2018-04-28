@@ -106,8 +106,15 @@ function webpackHotServerMiddleware(multiCompiler) {
 
         const filename = getFilename(serverStats, outputPath, 'main');
         const buffer = outputFs.readFileSync(filename);
-        Meteor.server.method_handlers = {};
-        Meteor.server.publish_handlers = {};
+        
+        const {
+          method_handlers,
+          publish_handlers
+        } = Meteor.server
+
+        Meteor.server.method_handlers = {...method_handlers};
+        Meteor.server.publish_handlers = {...publish_handlers};
+        
         try{
             const requireFromString =Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
             interopRequireDefault(
