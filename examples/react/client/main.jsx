@@ -3,11 +3,11 @@ import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 
 import App from './ui/App';
+import './main.css'
 
 Meteor.startup(() => {
-  render(<App />, document.getElementById('render-target'));
+  render(
+    <App />,
+    document.getElementById('render-target')
+  );
 });
-
-if(module.hot){
-  module.hot.accept();
-}

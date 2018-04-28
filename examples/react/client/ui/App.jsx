@@ -1,3 +1,4 @@
+import { hot } from 'react-hot-loader'
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
@@ -100,4 +101,4 @@ export default withTracker(() => {
     incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
     currentUser: Meteor.user(),
   };
-})(App);
+})(hot(module)(App));

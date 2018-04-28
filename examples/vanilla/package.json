@@ -2,15 +2,15 @@
   "name": "webpack-meteor-boilerplate",
   "private": true,
   "scripts": {
-    "start": "METEOR_PACKAGE_DIRS=\"../../atmosphere-packages\" meteor run"
+    "start": "meteor run"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0-beta.41",
-    "html-webpack-plugin": "^3.0.6",
-    "webpack": "^4.1.1",
-    "webpack-dev-middleware": "^3.0.1",
-    "webpack-hot-middleware": "^2.21.2",
+    "@babel/runtime": "^7.0.0-beta.46",
+    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^4.6.0",
+    "webpack-dev-middleware": "^3.1.3",
+    "webpack-hot-middleware": "^2.22.1",
     "webpack-hot-server-middleware": "^0.5.0",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-node-externals": "^1.7.2"
   }
 }
