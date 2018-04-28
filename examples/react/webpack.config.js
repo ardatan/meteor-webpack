@@ -2,16 +2,17 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const clientConfig = {
-    entry: [
-        'react-hot-loader/patch',
-      './client/main.jsx'
-    ],
+    entry: './client/main.jsx',
     module: {
       rules: [
         {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           use: ['babel-loader']
+        },
+        {
+          test: /\.css$/,
+          use: [ 'style-loader', 'css-loader' ]
         }
       ]
     },
