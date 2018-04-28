@@ -56,7 +56,10 @@ Plugin.registerCompiler({
                         return true;
                     }
                 };
-                webpackConfig.mode = process.NODE_ENV == 'production' ? 'production' : 'development';
+                const webpackPackageJson = Npm.require('webpack/package.json');
+                if (webpackPackageJson.version.split('.')[0] > 3){
+                    webpackConfig.mode = process.NODE_ENV == 'production' ? 'production' : 'development';
+                }
                 webpackConfig.externals = webpackConfig.externals || [];
                 webpackConfig.externals.push(resolveExternals);
                 compilerCache[targetPlatform] = webpack(webpackConfig);
@@ -83,8 +86,6 @@ Plugin.registerCompiler({
 
             if (compilerCache[targetPlatform] == null) {
                 return;
-            } else {
-                targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().includes('webpack.config.js'));
             }
 
             const compiler = compilerCache[targetPlatform];

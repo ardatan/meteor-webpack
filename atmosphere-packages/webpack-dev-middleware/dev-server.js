@@ -106,10 +106,35 @@ function webpackHotServerMiddleware(multiCompiler) {
 
         const filename = getFilename(serverStats, outputPath, 'main');
         const buffer = outputFs.readFileSync(filename);
+
+        /**
+         * Deletes the existing method and publish handler
+         * in order to prevent conflict.
+         * Because new compilation will inject the new code which may have
+         * publications and methods in the same names.
+         * 
+         * For example if a publication is updated (Meteor.publish('todos')),
+         * HMR cannot inject new publication without removing the existing one.
+         */
+
+        const oldMethodHandlers = Meteor.server.method_handlers;
         Meteor.server.method_handlers = {};
+        for(const methodHandlerName in oldMethodHandlers){
+            if(methodHandlerName.startsWith('login') || methodHandlerName.startsWith('logout')){
+                Meteor.server.method_handlers[methodHandlerName] = oldMethodHandlers[methodHandlerName];
+            }
+        }
+
+        const oldPublishHandlers = Meteor.server.publish_handlers;
         Meteor.server.publish_handlers = {};
+        for(const publishHandlerName in oldPublishHandlers){
+            if(publishHandlerName.startsWith('meteor')){
+                Meteor.server.method_handlers[publishHandlerName] = oldPublishHandlers[publishHandlerName];
+            }
+        }
+
         try{
-            const requireFromString =Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
+            const requireFromString = Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
             interopRequireDefault(
                 requireFromString(buffer.toString(),filename)
             );
@@ -150,8 +175,12 @@ function arrangeConfig(webpackConfig){
     if (!(webpackConfig instanceof Array)) {
         webpackConfig = [webpackConfig];
     }
+    webpackConfig = webpackConfig.filter(singleWebpackConfig => singleWebpackConfig.devServer);
     for(const singleWebpackConfig of webpackConfig){
-        singleWebpackConfig.mode = 'development';
+        const webpackPackageJson = Npm.require(path.join(projectPath, 'node_modules/webpack/package.json'));
+        if (webpackPackageJson.version.split('.')[0] > 3){
+            singleWebpackConfig.mode = 'development';
+        }
         singleWebpackConfig.externals = webpackConfig.externals || [];
         singleWebpackConfig.externals.push(resolveExternals);
         singleWebpackConfig.context = projectPath;
