@@ -1,5 +1,6 @@
 
 
+const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
 const path = Npm.require('path');
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
@@ -224,7 +225,7 @@ function arrangeConfig(webpackConfig){
 
 if (Meteor.isServer && Meteor.isDevelopment) {
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
-    const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, 'webpack.config.js')));
+    const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
     if (webpackConfig) {
         const webpackDevMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-dev-middleware'));

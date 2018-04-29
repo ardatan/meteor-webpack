@@ -1,3 +1,4 @@
+const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
 Plugin.registerCompiler({
     extensions: ['js', 'jsx', 'ts', 'tsx', 'html'],
 }, function () {
@@ -11,6 +12,7 @@ Plugin.registerCompiler({
         console.log('You have to install webpack to use this package!')
     }
     const MemoryFS = Npm.require('memory-fs');
+    const mfs = new MemoryFS();
     const {
         JSDOM
     } = Npm.require('jsdom');
@@ -49,6 +51,8 @@ Plugin.registerCompiler({
                 }
 
                 function resolveMeteor(request, callback) {
+                    //fix for typescript
+                    request = request.replace('@types/', '');
                     var match = request.match(/^meteor\/(.+)$/);
                     var package = match && match[1];
                     if (package) {
@@ -63,13 +67,13 @@ Plugin.registerCompiler({
                 webpackConfig.externals = webpackConfig.externals || [];
                 webpackConfig.externals.push(resolveExternals);
                 compilerCache[targetPlatform] = webpack(webpackConfig);
-                compilerCache[targetPlatform].outputFileSystem = new MemoryFS();
+                compilerCache[targetPlatform].outputFileSystem = mfs;
             }
         },
         processFilesForTarget(inputFiles) {
 
             //Find Webpack Configuration File
-            const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().includes('webpack.config'));
+            const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith(WEBPACK_CONFIG_FILE));
             //Get source hash in order to check if configuration is changed.
             const sourceHash = targetFile.getSourceHash();
             //If source hash doesn't match the previous hash, clean the cache.
