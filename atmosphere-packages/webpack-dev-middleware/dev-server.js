@@ -98,7 +98,7 @@ function webpackHotServerMiddleware(multiCompiler) {
         if (clientCompilers.length) {
             const clientStats = findStats(multiStats, 'client');
             clientStatsJson = clientStats.map(obj => obj.toJson());
-            
+
             if (clientStatsJson.length === 1) {
                 clientStatsJson = clientStatsJson[0];
             }
@@ -108,29 +108,48 @@ function webpackHotServerMiddleware(multiCompiler) {
         const buffer = outputFs.readFileSync(filename);
 
         /**
-         * Deletes the existing method and publish handler
-         * in order to prevent conflict.
-         * Because new compilation will inject the new code which may have
-         * publications and methods in the same names.
-         * 
+         * Delete all methods/publications that are set
+         * by the code itself (e.g: anything defined by the developer)
+         * so it can be re-injected on each hot-push,
+         * but keep all handlers that are set by external packages
+         * because they get injeted only on a "full" restart to the server.
+
          * For example if a publication is updated (Meteor.publish('todos')),
          * HMR cannot inject new publication without removing the existing one.
          */
 
-        const oldMethodHandlers = Meteor.server.method_handlers;
-        Meteor.server.method_handlers = {};
-        for(const methodHandlerName in oldMethodHandlers){
-            if(methodHandlerName.startsWith('login') || methodHandlerName.startsWith('logout')){
-                Meteor.server.method_handlers[methodHandlerName] = oldMethodHandlers[methodHandlerName];
-            }
-        }
+        // Define a key that is likely to stay unique
+        const handlersCache = '____webpack_handlers_cache_____'
+        const handlers = Meteor.server[handlersCache]
 
-        const oldPublishHandlers = Meteor.server.publish_handlers;
-        Meteor.server.publish_handlers = {};
-        for(const publishHandlerName in oldPublishHandlers){
-            if(publishHandlerName.startsWith('meteor')){
-                Meteor.server.method_handlers[publishHandlerName] = oldPublishHandlers[publishHandlerName];
+        if (!handlers) {
+          // This code will run only upon a "full" restart.
+          // On this time, the handlers contains only methods/publications
+          // that were set by external packages.
+
+          // We cant store the functions (passed by reference) so store the keys and check for existence later.
+          const oldMethodHandlers = Object.keys(Meteor.server.method_handlers)
+          const oldPublishHandlers = Object.keys(Meteor.server.publish_handlers)
+
+          Meteor.server[handlersCache] = {
+            methods: oldMethodHandlers,
+            publications: oldPublishHandlers
+          }
+
+        } else {
+          // If we already cached the "constant" handlers, keep them and delete the rest
+
+          for (const methodHandlerName in Meteor.server.method_handlers) {
+            if (!handlers.methods.includes(methodHandlerName)) {
+              delete Meteor.server.method_handlers[methodHandlerName]
             }
+          }
+
+          for (const publishHandlerName in Meteor.server.publish_handlers) {
+            if(!handlers.publications.includes(publishHandlerName)) {
+              delete Meteor.server.publish_handlers[publishHandlerName]
+            }
+          }
         }
 
         try{
