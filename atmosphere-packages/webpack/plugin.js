@@ -122,11 +122,13 @@ Plugin.registerCompiler({
             const chunks = stats.toJson(chunkOnlyConfig).chunks;
             const outFs = compiler.outputFileSystem;
 
+            let existsIndexHtml = false;
             if(targetPlatform !== 'node'){
                 const indexPath = path.join(compiler.outputPath, "index.html");
                 if (outFs.existsSync(indexPath)) {
-                    let data = outFs.readFileSync(indexPath, 'utf8')
-                    data = data.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
+                    let data = outFs.readFileSync(indexPath, 'utf8');
+                    existsIndexHtml = true;
+                    data = data.split('<script').join('<script async');
                     const {
                         window: {
                             document
@@ -151,7 +153,7 @@ Plugin.registerCompiler({
                         data = 'const require = Npm.require;'
                     }
                     data += outFs.readFileSync(absoluteFilePath, 'utf8');
-                    if (chunk.initial && filePath.endsWith('.js')) {
+                    if (chunk.initial && filePath.endsWith('.js') && !existsIndexHtml) {
                             targetFile.addJavaScript({
                                 path: filePath,
                                 hash: chunk.hash,
