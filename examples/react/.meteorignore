@@ -1,4 +1,6 @@
 *
 !.meteor/
 !node_modules/
+!public/
+!private/
 !webpack.config.js
