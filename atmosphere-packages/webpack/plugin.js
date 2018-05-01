@@ -62,7 +62,7 @@ Plugin.registerCompiler({
                 };
                 const webpackPackageJson = Npm.require('webpack/package.json');
                 if (webpackPackageJson.version.split('.')[0] > 3){
-                    webpackConfig.mode = process.NODE_ENV == 'production' ? 'production' : 'development';
+                    webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
                 }
                 webpackConfig.externals = webpackConfig.externals || [];
                 webpackConfig.externals.push(resolveExternals);
