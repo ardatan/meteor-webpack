@@ -97,7 +97,7 @@ Plugin.registerCompiler({
                 if (err) {
                     reject(err);
                 }
-                if (stats && false) {
+                if (stats) {
                     console.log(stats.toString({
                         colors: true
                     }));
