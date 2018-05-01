@@ -16,7 +16,7 @@ Plugin.registerCompiler({
     const {
         JSDOM
     } = Npm.require('jsdom');
-    const compilerCacheHashMap = {};
+    const compilerCache = {};
     return {
 
         constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile) {
@@ -26,7 +26,7 @@ Plugin.registerCompiler({
                 allWebpackConfigs = [allWebpackConfigs];
             }
 
-            let webpackConfig = allWebpackConfigs.find(webpackConfig => {
+            const webpackConfig = allWebpackConfigs.find(webpackConfig => {
                 if (webpackConfig.target) {
                     if (webpackConfig.target == targetPlatform) {
                         return true;
@@ -40,7 +40,7 @@ Plugin.registerCompiler({
 
             if (process.env.NODE_ENV !== 'production' && webpackConfig.devServer) {
                 compilerCache[targetPlatform] = null;
-                return;
+                return false;
             }
 
             if (webpackConfig) {
@@ -68,6 +68,7 @@ Plugin.registerCompiler({
                 webpackConfig.externals.push(resolveExternals);
                 compilerCache[targetPlatform] = webpack(webpackConfig);
                 compilerCache[targetPlatform].outputFileSystem = mfs;
+                return true;
             }
         },
         processFilesForTarget(inputFiles) {
@@ -76,19 +77,18 @@ Plugin.registerCompiler({
             const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith(WEBPACK_CONFIG_FILE));
             //Get source hash in order to check if configuration is changed.
             const sourceHash = targetFile.getSourceHash();
+
             //If source hash doesn't match the previous hash, clean the cache.
-
-            compilerCacheHashMap[sourceHash] = compilerCacheHashMap[sourceHash] || {};
-
-            const compilerCache = compilerCacheHashMap[sourceHash];
+            if(compilerCache.hash !== sourceHash){
+                compilerCache.hash = sourceHash;
+                delete compilerCache['web'];
+                delete compilerCache['node'];
+            }
 
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
-            if (typeof compilerCache[targetPlatform] === 'undefined') {
-                this.constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile)
-            }
-
-            if (compilerCache[targetPlatform] == null) {
+            if (typeof compilerCache[targetPlatform] === 'undefined'
+                && !this.constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile)) {
                 return;
             }
 
@@ -97,7 +97,7 @@ Plugin.registerCompiler({
                 if (err) {
                     reject(err);
                 }
-                if (stats) {
+                if (stats && false) {
                     console.log(stats.toString({
                         colors: true
                     }));
@@ -105,7 +105,7 @@ Plugin.registerCompiler({
                 resolve(stats);
             })).await();
             const chunkOnlyConfig = {
-                assets: false,
+                assets: true,
                 cached: false,
                 children: false,
                 chunks: true,
@@ -119,48 +119,66 @@ Plugin.registerCompiler({
                 timings: false,
                 version: false
             };
-            const chunks = stats.toJson(chunkOnlyConfig).chunks;
+            const { assets, chunks } = stats.toJson(chunkOnlyConfig);
             const outFs = compiler.outputFileSystem;
 
-            let existsIndexHtml = false;
             if(targetPlatform !== 'node'){
                 const indexPath = path.join(compiler.outputPath, "index.html");
-                if (outFs.existsSync(indexPath)) {
-                    let data = outFs.readFileSync(indexPath, 'utf8');
-                    existsIndexHtml = true;
-                    data = data.split('<script').join('<script async');
-                    const {
-                        window: {
-                            document
-                        }
-                    } = new JSDOM(data);
-                    targetFile.addHtml({
-                        data: document.head.innerHTML,
-                        section: 'head'
-                    });
-                    targetFile.addHtml({
-                        data: document.body.innerHTML,
-                        section: 'body'
-                    });
-                }
-            }
-
-            for (const chunk of chunks) {
-                for (const filePath of chunk.files) {
+                let existsIndexHtml = outFs.existsSync(indexPath);
+                for(const asset of assets){
+                    const filePath = asset.name;
                     const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                    let data = '';
-                    if (targetPlatform == 'node') {
-                        data = 'const require = Npm.require;'
+                    const data = outFs.readFileSync(absoluteFilePath, 'utf8');
+                    const hash = asset.chunks[0] && chunks[asset.chunks[0]] && chunks[asset.chunks[0]].hash;
+                    if(filePath.endsWith('index.html')){
+                        const {
+                            window: {
+                                document
+                            }
+                        } = new JSDOM(data.split('<script').join('<script async'));
+                        targetFile.addHtml({
+                            data: document.head.innerHTML,
+                            section: 'head'
+                        });
+                        targetFile.addHtml({
+                            data: document.body.innerHTML,
+                            section: 'body'
+                        });
+                    }else if(!existsIndexHtml && filePath.endsWith('.js')){
+                        targetFile.addJavaScript({
+                            path: filePath,
+                            hash,
+                            data,
+                            bare: true
+                        });
+                    }else if(!existsIndexHtml && filePath.endsWith('.css')){
+                        targetFile.addStylesheet({
+                            path: filePath,
+                            hash,
+                            data
+                        })
+                    }else{                
+                        targetFile.addAsset({
+                            path: filePath,
+                            hash,
+                            data
+                        });
                     }
-                    data += outFs.readFileSync(absoluteFilePath, 'utf8');
-                    if (chunk.initial && filePath.endsWith('.js') && !existsIndexHtml) {
+                }
+            }else{
+                for (const chunk of chunks) {
+                    for (const filePath of chunk.files) {
+                        const absoluteFilePath = path.join(compiler.outputPath, filePath);
+                        let data = 'const require = Npm.require;';
+                        data += outFs.readFileSync(absoluteFilePath, 'utf8');
+                        if (chunk.initial && filePath.endsWith('.js')) {
                             targetFile.addJavaScript({
                                 path: filePath,
                                 hash: chunk.hash,
                                 data,
                                 bare: true
                             });
-                    } else {                          
+                        } else {                          
                             targetFile.addAsset({
                                 path: filePath,
                                 hash: chunk.hash,
@@ -169,6 +187,8 @@ Plugin.registerCompiler({
                         }
                     }
                 }
+            }
+            
 
 
         }
