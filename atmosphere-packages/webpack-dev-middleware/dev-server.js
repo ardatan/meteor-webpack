@@ -245,10 +245,10 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                         WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
                             const head = HEAD_REGEX.exec(content)[1];
                             data.dynamicHead = data.dynamicHead || '';
-                            data.dynamicHead += head.split('src').join('defer src');
+                            data.dynamicHead += head.split(' src="').join(' defer src="');
                             const body = BODY_REGEX.exec(content)[1];
                             data.dynamicBody = data.dynamicBody || '';
-                            data.dynamicBody += body.split('src').join('defer src');
+                            data.dynamicBody += body.split(' src="').join(' defer src="');
                         })
                         next();
                     } else {
