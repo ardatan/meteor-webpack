@@ -235,37 +235,33 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         // configuration file as a base.
         const clientConfig = webpackConfig.find(singleWebpackConfig => (singleWebpackConfig.target !== 'node'))
         const serverConfig = webpackConfig.find(singleWebpackConfig => (singleWebpackConfig.target == 'node'))
-        const devMiddlewareInstance = webpackDevMiddleware(compiler, clientConfig.devServer);
         const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
         const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
-        WebApp.connectHandlers.use((req, res, next) => {
-            devMiddlewareInstance(req, {
-                end(content) {
-                    if (/<[a-z][\s\S]*>/i.test(content) && !req.url.includes('.js')) {
-                        WebAppInternals.registerBoilerplateDataCallback('webpack', (req, data) => {
-                            const head = HEAD_REGEX.exec(content)[1];
-                            data.dynamicHead = data.dynamicHead || '';
-                            data.dynamicHead += head.split(' src="').join(' defer src="');
-                            const body = BODY_REGEX.exec(content)[1];
-                            data.dynamicBody = data.dynamicBody || '';
-                            data.dynamicBody += body.split(' src="').join(' defer src="');
-                        })
-                        next();
-                    } else {
-                        res.end(content);
-                    }
-                },
-                setHeader() {
-                    //res.setHeader(...arguments);
-                }
-            }, next)
+        WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
+            index: false,
+            ...clientConfig.devServer
+        }));
+        compiler.hooks.done.tap('meteor-webpack', () => {
+            const clientCompiler = compiler.compilers.find(compiler => (compiler.name == 'client'));
+            const outFs = clientCompiler.outputFileSystem;
+            if('index.html' in outFs.data){
+                const content = outFs.data['index.html'].toString('utf8');
+                WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
+                    const head = HEAD_REGEX.exec(content)[1];
+                    data.dynamicHead = data.dynamicHead || '';
+                    data.dynamicHead += head.split(' src="').join(' defer src="');
+                    const body = BODY_REGEX.exec(content)[1];
+                    data.dynamicBody = data.dynamicBody || '';
+                    data.dynamicBody += body.split(' src="').join(' defer src="');
+                })
+            }
         });
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
             const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
-            WebApp.connectHandlers.use(webpackHotMiddleware(compiler.compilers.find(compiler => (compiler.name == 'client'))));
+            WebApp.rawConnectHandlers.use(webpackHotMiddleware(compiler.compilers.find(compiler => (compiler.name == 'client'))));
         }
         if(serverConfig && serverConfig.devServer && serverConfig.devServer.hot){
-            WebApp.connectHandlers.use(Meteor.bindEnvironment(webpackHotServerMiddleware(compiler)));
+            WebApp.rawConnectHandlers.use(Meteor.bindEnvironment(webpackHotServerMiddleware(compiler)));
         }
 
     }
