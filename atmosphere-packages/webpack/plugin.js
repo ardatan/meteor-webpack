@@ -22,8 +22,9 @@ Plugin.registerCompiler({
     return {
 
         constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile) {
-
-            let allWebpackConfigs = requireFromString(targetFile.getContentsAsString());
+            let allWebpackConfigs = requireFromString(targetFile.getContentsAsString(), path.join(process.cwd(), './' + targetFile.getPathInPackage()), {
+                prependPaths: [ process.cwd() ]
+            });
             if (!(allWebpackConfigs instanceof Array)) {
                 allWebpackConfigs = [allWebpackConfigs];
             }
@@ -123,70 +124,46 @@ Plugin.registerCompiler({
             const { assets, chunks } = stats.toJson(chunkOnlyConfig);
             const outFs = compiler.outputFileSystem;
 
-            if(targetPlatform !== 'node'){
-                const indexPath = path.join(compiler.outputPath, "index.html");
-                let existsIndexHtml = outFs.existsSync(indexPath);
-                for(const asset of assets){
-                    const filePath = asset.name;
-                    const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                    const data = outFs.readFileSync(absoluteFilePath, 'utf8');
-                    const hash = asset.chunks[0] && chunks[asset.chunks[0]] && chunks[asset.chunks[0]].hash;
-                    if(filePath.endsWith('index.html')){
-                        const {
-                            window: {
-                                document
-                            }
-                        } = new JSDOM(data.split('<script').join('<script async'));
-                        targetFile.addHtml({
-                            data: document.head.innerHTML,
-                            section: 'head'
-                        });
-                        targetFile.addHtml({
-                            data: document.body.innerHTML,
-                            section: 'body'
-                        });
-                    }else if(!existsIndexHtml && filePath.endsWith('.js')){
-                        targetFile.addJavaScript({
-                            path: filePath,
-                            hash,
-                            data,
-                            bare: true
-                        });
-                    }else if(!existsIndexHtml && filePath.endsWith('.css')){
-                        targetFile.addStylesheet({
-                            path: filePath,
-                            hash,
-                            data
-                        })
-                    }else{                
-                        targetFile.addAsset({
-                            path: filePath,
-                            hash,
-                            data
-                        });
-                    }
-                }
-            }else{
-                for (const chunk of chunks) {
-                    for (const filePath of chunk.files) {
-                        const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                        let data = 'const require = Npm.require;';
-                        data += outFs.readFileSync(absoluteFilePath, 'utf8');
-                        if (chunk.initial && filePath.endsWith('.js')) {
-                            targetFile.addJavaScript({
-                                path: filePath,
-                                hash: chunk.hash,
-                                data,
-                                bare: true
-                            });
-                        } else {                          
-                            targetFile.addAsset({
-                                path: filePath,
-                                hash: chunk.hash,
-                                data
-                            });
+            const indexPath = path.join(compiler.outputPath, "index.html");
+            let existsIndexHtml = outFs.existsSync(indexPath);
+            for(const asset of assets){
+                const filePath = asset.name;
+                const absoluteFilePath = path.join(compiler.outputPath, filePath);
+                const data = outFs.readFileSync(absoluteFilePath);
+                const hash = asset.chunks[0] && chunks[asset.chunks[0]] && chunks[asset.chunks[0]].hash;
+                if(filePath.endsWith('index.html')){
+                    const {
+                        window: {
+                            document
                         }
-                    }
+                    } = new JSDOM(data.toString('utf8').split('<script').join('<script async'));
+                    targetFile.addHtml({
+                        data: document.head.innerHTML,
+                        section: 'head'
+                    });
+                    targetFile.addHtml({
+                        data: document.body.innerHTML,
+                        section: 'body'
+                    });
+                }else if(!existsIndexHtml && filePath.endsWith('.js')){
+                    targetFile.addJavaScript({
+                        path: filePath,
+                        hash,
+                        data: 'const require = Npm.require;\n' + data.toString('utf8'),
+                        bare: true
+                    });
+                }else if(!existsIndexHtml && filePath.endsWith('.css')){
+                    targetFile.addStylesheet({
+                        path: filePath,
+                        hash,
+                        data: data.toString('utf8')
+                    })
+                }else{                
+                    targetFile.addAsset({
+                        path: filePath,
+                        hash,
+                        data
+                    });
                 }
             }
             
