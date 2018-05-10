@@ -225,12 +225,14 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             index: false,
             ...clientConfig.devServer
         }));
-        clientConfig.devServer.index = clientConfig.devServer.index || './index.html';
-        compiler.hooks.done.tap('meteor-webpack', () => {
-            const clientCompiler = compiler.compilers.find(compiler => (compiler.name == 'client'));
-            const indexPath = path.join(clientConfig.devServer.contentBase, clientConfig.devServer.index);
-            if (clientCompiler.outputFileSystem.existsSync(indexPath)) {
-                const content = clientCompiler.outputFileSystem.readFileSync(indexPath, 'utf8');
+
+        compiler.hooks.done.tap('meteor-webpack', ({ stats }) => {
+            const { assets } = stats[0].compilation
+            const index = clientConfig.devServer.index || 'index.html'
+
+            if (index in assets) {
+                const content = assets[index].source()
+
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
                     const head = HEAD_REGEX.exec(content)[1];
                     data.dynamicHead = data.dynamicHead || '';

@@ -77,46 +77,30 @@ Plugin.registerCompiler({
             }
 
             const compiler = compilerCache[targetPlatform];
-            const stats = new Promise((resolve, reject) => compiler.run((err, stats) => {
-                if (err) {
-                    reject(err);
-                }
-                if (stats) {
-                    console.log(stats.toString({
-                        colors: true
-                    }));
-                }
-                resolve(stats);
-            })).await();
-            const chunkOnlyConfig = {
-                assets: true,
-                cached: false,
-                children: false,
-                chunks: true,
-                chunkModules: false,
-                chunkOrigins: false,
-                errorDetails: false,
-                hash: true,
-                modules: false,
-                reasons: false,
-                source: false,
-                timings: false,
-                version: false
-            };
-            const {
-                assets,
-                chunks
-            } = stats.toJson(chunkOnlyConfig);
-            const outFs = compiler.outputFileSystem;
 
-            const indexPath = path.join(compiler.outputPath, "index.html");
-            let existsIndexHtml = outFs.existsSync(indexPath);
-            for (const asset of assets) {
-                const filePath = asset.name;
-                const absoluteFilePath = path.join(compiler.outputPath, filePath);
-                const data = outFs.readFileSync(absoluteFilePath);
-                const hash = asset.chunks[0] && chunks[asset.chunks[0]] && chunks[asset.chunks[0]].hash;
-                if (filePath.endsWith('index.html')) {
+            const {
+                compilation
+            } = new Promise((resolve, reject) => {
+                compiler.hooks.done.tap('meteor-webpack', resolve)
+                compiler.run((err, stats) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    if (stats) {
+                        console.log(stats.toString({
+                            colors: true
+                        }));
+                    }
+                });
+            }).await();
+            const {
+                assets
+            } = compilation;
+            const existsIndexHtml = 'index.html' in assets;
+            for (const path in assets) {
+                const asset = assets[path];
+                const data = asset.source();
+                if (path.endsWith('index.html')) {
                     const {
                         window: {
                             document
@@ -130,23 +114,20 @@ Plugin.registerCompiler({
                         data: document.body.innerHTML,
                         section: 'body'
                     });
-                } else if (!existsIndexHtml && filePath.endsWith('.js')) {
+                } else if (!existsIndexHtml && path.endsWith('.js')) {
                     targetFile.addJavaScript({
-                        path: filePath,
-                        hash,
+                        path,
                         data: 'const require = Npm.require;\n' + data.toString('utf8'),
                         bare: true
                     });
-                } else if (!existsIndexHtml && filePath.endsWith('.css')) {
+                } else if (!existsIndexHtml && path.endsWith('.css')) {
                     targetFile.addStylesheet({
-                        path: filePath,
-                        hash,
+                        path,
                         data: data.toString('utf8')
                     })
                 } else {
                     targetFile.addAsset({
-                        path: filePath,
-                        hash,
+                        path,
                         data
                     });
                 }
