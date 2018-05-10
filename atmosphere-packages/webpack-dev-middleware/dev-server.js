@@ -1,5 +1,3 @@
-
-
 const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
 const path = Npm.require('path');
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
@@ -29,9 +27,9 @@ function getFilename(serverStats, outputPath, chunkName) {
     // will be an array of filenames.
     return path.join(
         outputPath,
-        Array.isArray(filename)
-            ? filename.find(asset => /\.js$/.test(asset))
-            : filename
+        Array.isArray(filename) ?
+        filename.find(asset => /\.js$/.test(asset)) :
+        filename
     );
 }
 
@@ -124,41 +122,41 @@ function webpackHotServerMiddleware(multiCompiler) {
         const handlers = Meteor.server[handlersCache]
 
         if (!handlers) {
-          // This code will run only upon a "full" restart.
-          // On this time, the handlers contains only methods/publications
-          // that were set by external packages.
+            // This code will run only upon a "full" restart.
+            // On this time, the handlers contains only methods/publications
+            // that were set by external packages.
 
-          // We cant store the functions (passed by reference) so store the keys and check for existence later.
-          const oldMethodHandlers = Object.keys(Meteor.server.method_handlers)
-          const oldPublishHandlers = Object.keys(Meteor.server.publish_handlers)
+            // We cant store the functions (passed by reference) so store the keys and check for existence later.
+            const oldMethodHandlers = Object.keys(Meteor.server.method_handlers)
+            const oldPublishHandlers = Object.keys(Meteor.server.publish_handlers)
 
-          Meteor.server[handlersCache] = {
-            methods: oldMethodHandlers,
-            publications: oldPublishHandlers
-          }
+            Meteor.server[handlersCache] = {
+                methods: oldMethodHandlers,
+                publications: oldPublishHandlers
+            }
 
         } else {
-          // If we already cached the "constant" handlers, keep them and delete the rest
+            // If we already cached the "constant" handlers, keep them and delete the rest
 
-          for (const methodHandlerName in Meteor.server.method_handlers) {
-            if (!handlers.methods.includes(methodHandlerName)) {
-              delete Meteor.server.method_handlers[methodHandlerName]
+            for (const methodHandlerName in Meteor.server.method_handlers) {
+                if (!handlers.methods.includes(methodHandlerName)) {
+                    delete Meteor.server.method_handlers[methodHandlerName]
+                }
             }
-          }
 
-          for (const publishHandlerName in Meteor.server.publish_handlers) {
-            if(!handlers.publications.includes(publishHandlerName)) {
-              delete Meteor.server.publish_handlers[publishHandlerName]
+            for (const publishHandlerName in Meteor.server.publish_handlers) {
+                if (!handlers.publications.includes(publishHandlerName)) {
+                    delete Meteor.server.publish_handlers[publishHandlerName]
+                }
             }
-          }
         }
 
-        try{
+        try {
             const requireFromString = Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
             interopRequireDefault(
-                requireFromString(buffer.toString(),filename)
+                requireFromString(buffer.toString(), filename)
             );
-        }catch(e){
+        } catch (e) {
             console.log(e)
         }
     };
@@ -191,21 +189,21 @@ function resolveMeteor(request, callback) {
     }
 };
 
-function arrangeConfig(webpackConfig){
+function arrangeConfig(webpackConfig) {
     if (!(webpackConfig instanceof Array)) {
         webpackConfig = [webpackConfig];
     }
     webpackConfig = webpackConfig.filter(singleWebpackConfig => singleWebpackConfig.devServer);
-    for(const singleWebpackConfig of webpackConfig){
+    for (const singleWebpackConfig of webpackConfig) {
         const webpackPackageJson = Npm.require(path.join(projectPath, 'node_modules/webpack/package.json'));
-        if (webpackPackageJson.version.split('.')[0] > 3){
+        if (webpackPackageJson.version.split('.')[0] > 3) {
             singleWebpackConfig.mode = 'development';
         }
         singleWebpackConfig.externals = webpackConfig.externals || [];
         singleWebpackConfig.externals.push(resolveExternals);
         singleWebpackConfig.context = projectPath;
         singleWebpackConfig.name = singleWebpackConfig.target == 'node' ? 'server' : 'client';
-        if(singleWebpackConfig.target !== 'node' && singleWebpackConfig.devServer && singleWebpackConfig.devServer.hot){
+        if (singleWebpackConfig.target !== 'node' && singleWebpackConfig.devServer && singleWebpackConfig.devServer.hot) {
             if (singleWebpackConfig.entry instanceof Array || typeof singleWebpackConfig.entry === 'string') {
                 if (!(singleWebpackConfig.entry instanceof Array)) {
                     singleWebpackConfig.entry = [singleWebpackConfig.entry];
@@ -234,18 +232,21 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         // Tell Meteor to use the webpack-dev-middleware and use the webpack.config.js
         // configuration file as a base.
         const clientConfig = webpackConfig.find(singleWebpackConfig => (singleWebpackConfig.target !== 'node'))
+        const clientCompiler = compiler.compilers.find(compiler => (compiler.name == 'client'));
         const serverConfig = webpackConfig.find(singleWebpackConfig => (singleWebpackConfig.target == 'node'))
+        clientConfig.devServer.contentBase = clientConfig.devServer.contentBase || clientCompiler.outputPath;
         const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
         const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
             index: false,
             ...clientConfig.devServer
         }));
+        clientConfig.devServer.index = clientConfig.devServer.index || './index.html';
         compiler.hooks.done.tap('meteor-webpack', () => {
             const clientCompiler = compiler.compilers.find(compiler => (compiler.name == 'client'));
-            const outFs = clientCompiler.outputFileSystem;
-            if('index.html' in outFs.data){
-                const content = outFs.data['index.html'].toString('utf8');
+            const indexPath = path.join(clientConfig.devServer.contentBase, clientConfig.devServer.index);
+            if (clientCompiler.outputFileSystem.existsSync(indexPath)) {
+                const content = clientCompiler.outputFileSystem.readFileSync(indexPath, 'utf8');
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
                     const head = HEAD_REGEX.exec(content)[1];
                     data.dynamicHead = data.dynamicHead || '';
@@ -258,9 +259,9 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         });
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
             const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
-            WebApp.rawConnectHandlers.use(webpackHotMiddleware(compiler.compilers.find(compiler => (compiler.name == 'client'))));
+            WebApp.rawConnectHandlers.use(webpackHotMiddleware(clientCompiler));
         }
-        if(serverConfig && serverConfig.devServer && serverConfig.devServer.hot){
+        if (serverConfig && serverConfig.devServer && serverConfig.devServer.hot) {
             WebApp.rawConnectHandlers.use(Meteor.bindEnvironment(webpackHotServerMiddleware(compiler)));
         }
 
