@@ -174,21 +174,6 @@ function webpackHotServerMiddleware(multiCompiler) {
     };
 }
 
-
-function resolveExternals(context, request, callback) {
-    return resolveMeteor(request, callback) ||
-        callback();
-}
-
-function resolveMeteor(request, callback) {
-    var match = request.match(/^meteor\/(.+)$/);
-    var package = match && match[1];
-    if (package) {
-        callback(null, `Package['${package}']`);
-        return true;
-    }
-};
-
 function arrangeConfig(webpackConfig) {
     if (!(webpackConfig instanceof Array)) {
         webpackConfig = [webpackConfig];
@@ -199,8 +184,6 @@ function arrangeConfig(webpackConfig) {
         if (webpackPackageJson.version.split('.')[0] > 3) {
             singleWebpackConfig.mode = 'development';
         }
-        singleWebpackConfig.externals = webpackConfig.externals || [];
-        singleWebpackConfig.externals.push(resolveExternals);
         singleWebpackConfig.context = projectPath;
         singleWebpackConfig.name = singleWebpackConfig.target == 'node' ? 'server' : 'client';
         if (singleWebpackConfig.target !== 'node' && singleWebpackConfig.devServer && singleWebpackConfig.devServer.hot) {
@@ -235,6 +218,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         const clientCompiler = compiler.compilers.find(compiler => (compiler.name == 'client'));
         const serverConfig = webpackConfig.find(singleWebpackConfig => (singleWebpackConfig.target == 'node'))
         clientConfig.devServer.contentBase = clientConfig.devServer.contentBase || clientCompiler.outputPath;
+        clientConfig.devServer.publicPath = clientConfig.devServer.publicPath || (clientConfig.output && clientConfig.output.publicPath);
         const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
         const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {

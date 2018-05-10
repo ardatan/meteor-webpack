@@ -24,6 +24,7 @@
     "vue-template-compiler": "^2.5.16",
     "webpack": "^4.6.0",
     "webpack-dev-middleware": "^3.1.3",
+    "webpack-meteor-externals": "0.0.4",
     "webpack-hot-middleware": "^2.22.1"
   }
 }

@@ -5,6 +5,7 @@ const {
 } = require('@ngtools/webpack');
 const webpack = require('webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const meteorExternals = require('webpack-meteor-externals');
 const nodeExternals = require('webpack-node-externals');
 
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
@@ -39,11 +40,11 @@ const clientConfig = {
         }),
         new webpack.ProgressPlugin()
     ],
+    externals: [
+        meteorExternals()
+    ],
     resolve: {
         extensions: ['.tsx', '.ts', '.js']
-    },
-    output: {
-        filename: 'bundle.js'
     }
 };
 const serverConfig = {
@@ -68,13 +69,11 @@ const serverConfig = {
         new webpack.ProgressPlugin()
     ],
     externals: [
+        meteorExternals(),
         nodeExternals()
     ],
-    output: {
-        filename: 'bundle.js'
-    },
     devServer: {
-      hot: true
+        hot: true
     }
 }
 module.exports = [clientConfig, serverConfig];

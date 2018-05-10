@@ -28,6 +28,7 @@
     "typescript": "2.4.2",
     "webpack": "^4.2.0",
     "webpack-dev-middleware": "^3.0.1",
+    "webpack-meteor-externals": "0.0.4",
     "webpack-node-externals": "^1.7.2"
   }
 }

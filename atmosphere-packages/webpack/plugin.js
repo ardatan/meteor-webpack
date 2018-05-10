@@ -6,9 +6,9 @@ Plugin.registerCompiler({
     const path = Npm.require('path');
     const requireFromString = Npm.require('require-from-string');
     let webpack;
-    try{
+    try {
         webpack = Npm.require('webpack');
-    }catch(e){
+    } catch (e) {
         console.log('You have to install webpack to use this package!')
     }
     const MemoryFS = Npm.require('memory-fs');
@@ -23,7 +23,7 @@ Plugin.registerCompiler({
 
         constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile) {
             let allWebpackConfigs = requireFromString(targetFile.getContentsAsString(), path.join(process.cwd(), './' + targetFile.getPathInPackage()), {
-                prependPaths: [ process.cwd() ]
+                prependPaths: [process.cwd()]
             });
             if (!(allWebpackConfigs instanceof Array)) {
                 allWebpackConfigs = [allWebpackConfigs];
@@ -47,28 +47,10 @@ Plugin.registerCompiler({
             }
 
             if (webpackConfig) {
-
-                function resolveExternals(context, request, callback) {
-                    return resolveMeteor(request, callback) ||
-                        callback();
-                }
-
-                function resolveMeteor(request, callback) {
-                    //fix for typescript
-                    request = request.replace('@types/', '');
-                    var match = request.match(/^meteor\/(.+)$/);
-                    var package = match && match[1];
-                    if (package) {
-                        callback(null, `Package['${package}']`);
-                        return true;
-                    }
-                };
                 const webpackPackageJson = Npm.require('webpack/package.json');
-                if (webpackPackageJson.version.split('.')[0] > 3){
+                if (webpackPackageJson.version.split('.')[0] > 3) {
                     webpackConfig.mode = process.env.NODE_ENV == 'production' ? 'production' : 'development';
                 }
-                webpackConfig.externals = webpackConfig.externals || [];
-                webpackConfig.externals.push(resolveExternals);
                 compilerCache[targetPlatform] = webpack(webpackConfig);
                 compilerCache[targetPlatform].outputFileSystem = mfs;
                 return true;
@@ -84,13 +66,13 @@ Plugin.registerCompiler({
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
             //If source hash doesn't match the previous hash, clean the cache.
-            if(compilerCache.sourceHashes[targetPlatform] !== sourceHash){
+            if (compilerCache.sourceHashes[targetPlatform] !== sourceHash) {
                 compilerCache.sourceHashes[targetPlatform] == sourceHash;
                 delete compilerCache[targetPlatform];
             }
 
-            if (!compilerCache[targetPlatform]
-                && !this.constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile)) {
+            if (!compilerCache[targetPlatform] &&
+                !this.constructNewCompilerForTarget(compilerCache, targetPlatform, targetFile)) {
                 return;
             }
 
@@ -121,17 +103,20 @@ Plugin.registerCompiler({
                 timings: false,
                 version: false
             };
-            const { assets, chunks } = stats.toJson(chunkOnlyConfig);
+            const {
+                assets,
+                chunks
+            } = stats.toJson(chunkOnlyConfig);
             const outFs = compiler.outputFileSystem;
 
             const indexPath = path.join(compiler.outputPath, "index.html");
             let existsIndexHtml = outFs.existsSync(indexPath);
-            for(const asset of assets){
+            for (const asset of assets) {
                 const filePath = asset.name;
                 const absoluteFilePath = path.join(compiler.outputPath, filePath);
                 const data = outFs.readFileSync(absoluteFilePath);
                 const hash = asset.chunks[0] && chunks[asset.chunks[0]] && chunks[asset.chunks[0]].hash;
-                if(filePath.endsWith('index.html')){
+                if (filePath.endsWith('index.html')) {
                     const {
                         window: {
                             document
@@ -145,20 +130,20 @@ Plugin.registerCompiler({
                         data: document.body.innerHTML,
                         section: 'body'
                     });
-                }else if(!existsIndexHtml && filePath.endsWith('.js')){
+                } else if (!existsIndexHtml && filePath.endsWith('.js')) {
                     targetFile.addJavaScript({
                         path: filePath,
                         hash,
                         data: 'const require = Npm.require;\n' + data.toString('utf8'),
                         bare: true
                     });
-                }else if(!existsIndexHtml && filePath.endsWith('.css')){
+                } else if (!existsIndexHtml && filePath.endsWith('.css')) {
                     targetFile.addStylesheet({
                         path: filePath,
                         hash,
                         data: data.toString('utf8')
                     })
-                }else{                
+                } else {
                     targetFile.addAsset({
                         path: filePath,
                         hash,
@@ -166,7 +151,7 @@ Plugin.registerCompiler({
                     });
                 }
             }
-            
+
 
 
         }

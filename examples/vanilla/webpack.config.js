@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+const meteorExternals = require('webpack-meteor-externals');
 const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const clientConfig = {
@@ -12,6 +13,7 @@ const clientConfig = {
     output: {
         publicPath: '/'
     },
+    externals: [meteorExternals()],
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new HtmlWebpackPlugin({
@@ -23,7 +25,7 @@ const clientConfig = {
 
 const serverConfig = {
     target: 'node', // in order to ignore built-in modules like path, fs, etc.
-    externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
+    externals: [meteorExternals(), nodeExternals()], // in order to ignore all modules in node_modules folder
     entry: './server/main.js',
     devServer: {
         hot: true

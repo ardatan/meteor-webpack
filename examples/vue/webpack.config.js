@@ -1,6 +1,7 @@
 var path = require('path')
 var webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const meteorExternals = require('webpack-meteor-externals');
 
 const clientConfig = {
   entry: './client/main.js',
@@ -9,8 +10,7 @@ const clientConfig = {
     filename: 'build.js'
   },
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.css$/,
         use: [
           'vue-style-loader',
@@ -21,8 +21,7 @@ const clientConfig = {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
-          loaders: {
-          }
+          loaders: {}
           // other vue-loader options go here
         }
       },
@@ -46,6 +45,7 @@ const clientConfig = {
     },
     extensions: ['*', '.js', '.vue', '.json']
   },
+  externals: [meteorExternals()],
   devServer: {
     historyApiFallback: true,
     noInfo: true,
@@ -57,19 +57,20 @@ const clientConfig = {
   },
   devtool: '#eval-source-map',
   plugins: [
-      new webpack.HotModuleReplacementPlugin(),
-      new HtmlWebpackPlugin({
-          template: './client/main.html'
-      })
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebpackPlugin({
+      template: './client/main.html'
+    })
   ]
 }
 
 const serverConfig = {
-    entry: './server/main.js',
-    target: 'node',
-    devServer: {
-      hot: true
-    },
+  entry: './server/main.js',
+  target: 'node',
+  externals: [meteorExternals()],
+  devServer: {
+    hot: true
+  },
 };
 
 module.exports = [clientConfig, serverConfig];

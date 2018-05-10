@@ -42,7 +42,7 @@ Meteor-Webpack can resolve any atmosphere packages and Meteor modules like you a
 ### Regular Meteor Bundler
 
 Regular Meteor Bundler uses `babel` which tranpiles your ES2015 syntax to ES5 even imports to `CommonJS` which creates some limitation for you. For instance, you cannot use ES2015 modules, then you need to import UMD modules which would probably contain unused submodules of this module.
-Despite you can use atmosphere packages with Meteor-Webpack, you don't need to add extra atmosphere packages. For an extra compiler such as sass, less and pug etc; you can just install necessary webpack loader plugins, and add them into `webpack.config.js`. Meteor-Webpack runs exactly same way with `webpack-dev-server`.
+Despite you can use atmosphere packages with Meteor-Webpack, you don't need to add extra atmosphere packages for sass, typescript and others' compilation. For an extra compiler such as sass, less and pug etc; you can just install necessary webpack loader plugins, and add them into `webpack.config.js`. Meteor-Webpack runs exactly same way with `webpack-dev-server`.
 
 ### [Meteor Client Bundler](https://github.com/Urigo/meteor-client-bundler)
 
@@ -59,7 +59,7 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
 - If you have seperate client and server codes, you have to declare two configurations like we have in our example.
 
-## Seperating Client and Server Configuration
+## Seperating Client and Server Configuration - IMPORTANT!
 
 - You have to add `target` field by `node` value in the configuration object you want to use as server's;
 
@@ -73,22 +73,30 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
     }
 ```
 
+## Meteor Package Imports - IMPORTANT!
+- If you are using Meteor's package imports such as `import { Meteor } from 'meteor/meteor'`, `import { Mongo } from 'meteor/mongo'` and also non-global package references such as `import { publishComposite } from 'meteor/reywood:publish-composite'`. You have to install `webpack-meteor-externals` npm package, and add it to both client and server entries in `webpack.config.js`.
+- If you are using all of them by their global references without imports, you don't need that package.
+```bash
+    meteor npm install webpack-meteor-externals
+```
+
+```js
+    const meteorExternals = require('webpack-meteor-externals');
+    //...
+    externals: [
+        meteorExternals()
+    ]
+    //...
+```
+
 ### Client Configuration
 
 #### [Webpack Dev Middleware](https://github.com/webpack/webpack-dev-middleware)
 
-If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field and define `publicPath` in the client configuration;
+If you want to use Webpack's Development Server instead of Meteor's, you have to add `devServer` field in the client configuration;
 
 ```js
     devServer: {}
-```
-
-and
-
-```js
-    output: {
-        publicPath: '/'
-    },
 ```
 
 then you have to add another atmosphere package to packages;
@@ -100,7 +108,7 @@ then you have to add another atmosphere package to packages;
 don't forget to install `webpack-dev-middleware` package from NPM;
 
 ```bash
-    npm install webpack-dev-middleware --save
+    meteor npm install webpack-dev-middleware --save
 ```
 
 ### Server Configuration
@@ -110,7 +118,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 - Install `webpack-node-externals`
 
 ```bash
-    npm install webpack-node-externals --save
+    meteor npm install webpack-node-externals --save
 ```
 
 - Add externals into the server configuration in `webpack.config.js`
@@ -131,7 +139,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     }
 ```
 
-- and add the necessary plugin only for client!
+- and add the necessary plugin only for client; do not add this plugin for server, `hot: true` is enough for server-side HMR!
 
 ```js
     plugins: {
@@ -142,6 +150,14 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 - Then install `webpack-dev-middleware`,
 - Install client-side HMR middleware [`webpack-hot-middleware`](https://github.com/glenjamin/webpack-hot-middleware) in your project
 - Install server-side HMR middleware [`webpack-hot-server-middleware`](https://github.com/60frames/webpack-hot-server-middleware) in your project
+
+- Meteor's bundler may restart your server which is not good for HMR's working process; so we need to disable it by adding `.meteorignore` on the root with the following content;
+```
+    *
+    !.meteor/
+    !node_modules/
+    !webpack.config.js
+```
 
 ## Deployment
 `meteor deploy` command doesn't set `NODE_ENV=production` environment variable. That's why, `webpack` compiler recognizes that it is still a `development` build. You have two options to fix issue;
