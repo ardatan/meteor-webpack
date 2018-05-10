@@ -4,6 +4,7 @@ function resolveExternals(context, request, callback) {
 }
 
 function resolveMeteor(request, callback) {
+    request = request.replace('@types/', '');
     var match = request.match(/^meteor\/(.+)$/);
     var package = match && match[1];
     if (package) {
