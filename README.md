@@ -159,7 +159,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     !webpack.config.js
 ```
 
-## Deployment
+## Galaxy Deployment
 `meteor deploy` command doesn't set `NODE_ENV=production` environment variable. That's why, `webpack` compiler recognizes that it is still a `development` build. You have two options to fix issue;
 ### First option ( Recommended )
 - You have to provide `GALAXY_NODE_OPTIONS=--production` to make `webpack` recognize that it is a `production` build.
