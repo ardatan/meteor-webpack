@@ -77,7 +77,7 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
 - If you are using Meteor's package imports such as `import { Meteor } from 'meteor/meteor'`, `import { Mongo } from 'meteor/mongo'` and also non-global package references such as `import { publishComposite } from 'meteor/reywood:publish-composite'`. You have to install `webpack-meteor-externals` npm package, and add it to both client and server entries in `webpack.config.js`.
 - If you are using all of them by their global references without imports, you don't need that package.
 ```bash
-    meteor npm install webpack-meteor-externals
+    meteor npm install webpack-meteor-externals --save-dev
 ```
 
 ```js
@@ -108,7 +108,7 @@ then you have to add another atmosphere package to packages;
 don't forget to install `webpack-dev-middleware` package from NPM;
 
 ```bash
-    meteor npm install webpack-dev-middleware --save
+    meteor npm install webpack-dev-middleware --save-dev
 ```
 
 ### Server Configuration
@@ -118,7 +118,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
 - Install `webpack-node-externals`
 
 ```bash
-    meteor npm install webpack-node-externals --save
+    meteor npm install webpack-node-externals --save-dev
 ```
 
 - Add externals into the server configuration in `webpack.config.js`
@@ -159,7 +159,7 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     !webpack.config.js
 ```
 
-## Deployment
+## Galaxy Deployment
 `meteor deploy` command doesn't set `NODE_ENV=production` environment variable. That's why, `webpack` compiler recognizes that it is still a `development` build. You have two options to fix issue;
 ### First option ( Recommended )
 - You have to provide `GALAXY_NODE_OPTIONS=--production` to make `webpack` recognize that it is a `production` build.
