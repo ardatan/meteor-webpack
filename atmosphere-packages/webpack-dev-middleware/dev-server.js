@@ -226,20 +226,24 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             ...clientConfig.devServer
         }));
 
-        compiler.hooks.done.tap('meteor-webpack', ({ stats }) => {
-            const { assets } = stats[0].compilation
+        compiler.hooks.done.tap('meteor-webpack', ({
+            stats
+        }) => {
+            const {
+                assets
+            } = stats[0].compilation
             const index = clientConfig.devServer.index || 'index.html'
 
             if (index in assets) {
                 const content = assets[index].source()
 
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
-                    const head = HEAD_REGEX.exec(content)[1];
+                    const head = HEAD_REGEX.exec(content.split(' src="').join(' defer src="'))[1];
                     data.dynamicHead = data.dynamicHead || '';
-                    data.dynamicHead += head.split(' src="').join(' defer src="');
+                    data.dynamicHead += head;
                     const body = BODY_REGEX.exec(content)[1];
                     data.dynamicBody = data.dynamicBody || '';
-                    data.dynamicBody += body.split(' src="').join(' defer src="');
+                    data.dynamicBody += body;
                 })
             }
         });
