@@ -105,7 +105,7 @@ Plugin.registerCompiler({
                         window: {
                             document
                         }
-                    } = new JSDOM(data.toString('utf8').split(' src="').join(' defer src="'));
+                    } = new JSDOM(data.toString('utf8').split(' src="').join(' defer async src="'));
                     targetFile.addHtml({
                         data: document.head.innerHTML,
                         section: 'head'

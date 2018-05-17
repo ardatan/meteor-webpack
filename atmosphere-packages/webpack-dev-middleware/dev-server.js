@@ -238,7 +238,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 const content = assets[index].source()
 
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
-                    const head = HEAD_REGEX.exec(content.split(' src="').join(' defer src="'))[1];
+                    const head = HEAD_REGEX.exec(content.split(' src="').join(' defer async src="'))[1];
                     data.dynamicHead = data.dynamicHead || '';
                     data.dynamicHead += head;
                     const body = BODY_REGEX.exec(content)[1];
