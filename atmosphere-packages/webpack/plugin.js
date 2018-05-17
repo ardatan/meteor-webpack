@@ -94,12 +94,13 @@ Plugin.registerCompiler({
                 });
             }).await();
             const {
-                assets
+                assets,
+                options
             } = compilation;
-            console.log(Object.keys(assets));
 
             const existsIndexHtml = 'index.html' in assets;
             let indexDoc;
+            const jsFiles = {};
             for (const path in assets) {
                 const asset = assets[path];
                 const source = asset.source();
@@ -112,7 +113,12 @@ Plugin.registerCompiler({
                             }
                         } = new JSDOM(data);
                         indexDoc = document;
-                    } else if (!path.endsWith('.js')) {
+                    } else if (path.endsWith('.js')) {
+                        jsFiles[path] = {
+                            main: false,
+                            data: source.toString('utf8')
+                        };
+                    } else {
                         targetFile.addAsset({
                             path,
                             data: source
@@ -145,22 +151,34 @@ Plugin.registerCompiler({
 
             }
             if (existsIndexHtml) {
-                const jsFiles = {};
                 const scriptElems = indexDoc.querySelectorAll('script[src]');
                 let cnt = -1;
                 for (const scriptElem of scriptElems) {
-                    const path = scriptElem.src;
-                    if (path in assets) {
-                        jsFiles[path] = assets[path].source().toString('utf8');
-                        scriptElem.remove();
+                    const srcPath = scriptElem.src;
+                    for (const path in jsFiles) {
+                        if (srcPath.includes(path)) {
+                            jsFiles[path].main = true;
+                            scriptElem.remove();
+                        }
                     }
                 }
                 for (const path in jsFiles) {
-                    targetFile.addJavaScript({
-                        path,
-                        data: jsFiles[path],
-                        bare: true
-                    })
+                    const {
+                        main,
+                        data
+                    } = jsFiles[path];
+                    if (main) {
+                        targetFile.addJavaScript({
+                            path,
+                            data,
+                            bare: true
+                        });
+                    } else {
+                        targetFile.addAsset({
+                            path,
+                            data
+                        });
+                    }
                 }
                 targetFile.addHtml({
                     data: indexDoc.head.innerHTML,

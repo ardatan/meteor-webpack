@@ -208,7 +208,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
     const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
-    if (webpackConfig) {
+    if (webpackConfig.length) {
         const webpackDevMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-dev-middleware'));
 
         const compiler = webpack(webpackConfig);
