@@ -96,43 +96,81 @@ Plugin.registerCompiler({
             const {
                 assets
             } = compilation;
+            console.log(Object.keys(assets));
+
             const existsIndexHtml = 'index.html' in assets;
+            let indexDoc;
             for (const path in assets) {
                 const asset = assets[path];
-                const data = asset.source();
-                if (path.endsWith('index.html')) {
-                    const {
-                        window: {
-                            document
+                const source = asset.source();
+                if (existsIndexHtml) {
+                    const data = source.toString('utf8');
+                    if (path.endsWith('index.html')) {
+                        const {
+                            window: {
+                                document
+                            }
+                        } = new JSDOM(data);
+                        indexDoc = document;
+                    } else if (!path.endsWith('.js')) {
+                        targetFile.addAsset({
+                            path,
+                            data: source
+                        });
+                    }
+                } else {
+                    if (path.endsWith('.js')) {
+                        let data = source.toString('utf8');
+                        if (targetPlatform == 'node') {
+                            data = 'const require = Npm.require;' + data;
                         }
-                    } = new JSDOM(data.toString('utf8').split(' src="').join(' defer async src="'));
-                    targetFile.addHtml({
-                        data: document.head.innerHTML,
-                        section: 'head'
-                    });
-                    targetFile.addHtml({
-                        data: document.body.innerHTML,
-                        section: 'body'
-                    });
-                } else if (!existsIndexHtml && path.endsWith('.js')) {
+                        targetFile.addJavaScript({
+                            path,
+                            data,
+                            bare: true
+                        });
+                    } else if (path.endsWith('.css')) {
+                        const data = source.toString('utf8');
+                        targetFile.addStylesheet({
+                            path,
+                            data
+                        })
+                    } else {
+                        targetFile.addAsset({
+                            path,
+                            data: source
+                        });
+                    }
+                }
+
+            }
+            if (existsIndexHtml) {
+                const jsFiles = {};
+                const scriptElems = indexDoc.querySelectorAll('script[src]');
+                let cnt = -1;
+                for (const scriptElem of scriptElems) {
+                    const path = scriptElem.src;
+                    if (path in assets) {
+                        jsFiles[path] = assets[path].source().toString('utf8');
+                        scriptElem.remove();
+                    }
+                }
+                for (const path in jsFiles) {
                     targetFile.addJavaScript({
                         path,
-                        data: 'const require = Npm.require;\n' + data.toString('utf8'),
+                        data: jsFiles[path],
                         bare: true
-                    });
-                } else if (!existsIndexHtml && path.endsWith('.css')) {
-                    targetFile.addStylesheet({
-                        path,
-                        data: data.toString('utf8')
                     })
-                } else {
-                    targetFile.addAsset({
-                        path,
-                        data
-                    });
                 }
+                targetFile.addHtml({
+                    data: indexDoc.head.innerHTML,
+                    section: 'head'
+                });
+                targetFile.addHtml({
+                    data: indexDoc.body.innerHTML,
+                    section: 'body'
+                });
             }
-
 
 
         }
