@@ -235,10 +235,10 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             const index = clientConfig.devServer.index || 'index.html'
 
             if (index in assets) {
-                const content = assets[index].source()
+                const content = assets[index].source().split(' src="').join(' defer async src="');
 
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
-                    const head = HEAD_REGEX.exec(content.split(' src="').join(' defer async src="'))[1];
+                    const head = HEAD_REGEX.exec(content)[1];
                     data.dynamicHead = data.dynamicHead || '';
                     data.dynamicHead += head;
                     const body = BODY_REGEX.exec(content)[1];
