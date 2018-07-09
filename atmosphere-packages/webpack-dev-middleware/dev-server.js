@@ -197,7 +197,7 @@ function arrangeConfig(webpackConfig) {
             }
             //singleWebpackConfig.devServer.serverSideRender = true;
             for (const key in singleWebpackConfig.entry) {
-                singleWebpackConfig.entry[key].push('webpack-hot-middleware/client');
+                singleWebpackConfig.entry[key].push('webpack-hot-middleware/client?reload=true');
             }
         }
     }
