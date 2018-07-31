@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const meteorExternals = require('webpack-meteor-externals');
 
 const clientConfig = {
+  devtool: 'cheap-module-source-map',
   entry: './client/main.jsx',
   module: {
     rules: [{
