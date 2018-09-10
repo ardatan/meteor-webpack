@@ -57,6 +57,15 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
 ## Before you start
 
 - Remove existing compiler packages; `meteor remove ecmascript es5-shim static-html`
+- If you are using Meteor entry points, you have to remove them from your `package.json` 
+```json
+"meteor": {
+  "mainModule": {
+    "client": "client/main.js",
+    "server": "server/main.js"
+  }
+}
+```
 - You have to install webpack and necessary plugins with your favorite package manager; `yarn` or `npm`
 - Add Meteor package `webpack` by the command `meteor add ardatan:webpack`
 - Create `webpack.config.js`, and define entry module which is necessary for webpack.
