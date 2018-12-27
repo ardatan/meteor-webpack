@@ -34,7 +34,7 @@ function getFilename(serverStats, outputPath, chunkName) {
 }
 
 function installSourceMapSupport(fs) {
-    const sourceMapSupport = Npm.require(path.join(projectPath, 'node_modules/source-map-support'));
+    const sourceMapSupport = Npm.require('source-map-support');
     sourceMapSupport.install({
         // NOTE: If https://github.com/evanw/node-source-map-support/pull/149
         // lands we can be less aggressive and explicitly invalidate the source
@@ -152,7 +152,7 @@ function webpackHotServerMiddleware(multiCompiler) {
         }
 
         try {
-            const requireFromString = Npm.require(path.join(projectPath, 'node_modules/require-from-string'));
+            const requireFromString = Npm.require('require-from-string');
             interopRequireDefault(
                 requireFromString(buffer.toString(), filename)
             );
