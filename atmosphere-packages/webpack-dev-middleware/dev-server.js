@@ -245,12 +245,12 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
                 const js = []
 
                 head = head.replace(STYLE_REGEX, function(match, url) {
-                    css.push({url: '/' + url})
+                    css.push({url})
                     return ''
                 })
 
                 body = body.replace(SCRIPT_REGEX, function(match, url) {
-                    js.push({url: '/' + url})
+                    js.push({url})
                     return ''
                 })
                 
