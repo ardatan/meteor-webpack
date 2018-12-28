@@ -6,10 +6,10 @@
 
 meteor-base@1.4.0             # Packages every Meteor app needs to have
 mobile-experience@1.0.5       # Packages for a great mobile UX
-mongo@1.5.0                   # The database Meteor supports right now
+mongo@1.6.0                   # The database Meteor supports right now
 
-standard-minifier-css@1.4.1   # CSS minifier run for production mode
-standard-minifier-js@2.3.4    # JS minifier run for production mode
+standard-minifier-css@1.5.2   # CSS minifier run for production mode
+standard-minifier-js@2.4.0    # JS minifier run for production mode
 
 ardatan:webpack
 ardatan:webpack-dev-middleware
