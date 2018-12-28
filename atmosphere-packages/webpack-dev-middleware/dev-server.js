@@ -255,8 +255,8 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
                 })
                 
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
-                    data.head = data.head += head
-                    data.body = data.body += body
+                    data.head = data.head + head
+                    data.body = data.body + body
                     data.js = [...data.js, ...js]
                     data.css = [...data.css, ...css]
                 })
