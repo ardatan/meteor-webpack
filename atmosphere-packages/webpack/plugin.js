@@ -57,7 +57,7 @@ Plugin.registerCompiler({
             }
         },
         processFilesForTarget(inputFiles) {
-
+            
             //Find Webpack Configuration File
             const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith(WEBPACK_CONFIG_FILE));
             //Get source hash in order to check if configuration is changed.
@@ -101,6 +101,7 @@ Plugin.registerCompiler({
             const existsIndexHtml = 'index.html' in assets;
             let indexDoc;
             const jsFiles = {};
+            const cssFiles = {};
             for (const path in assets) {
                 const asset = assets[path];
                 const source = asset.source();
@@ -116,6 +117,10 @@ Plugin.registerCompiler({
                     } else if (path.endsWith('.js')) {
                         jsFiles[path] = {
                             main: false,
+                            data: source.toString('utf8')
+                        };
+                    } else if (path.endsWith('.css')) {
+                        cssFiles[path] = {
                             data: source.toString('utf8')
                         };
                     } else {
@@ -152,13 +157,21 @@ Plugin.registerCompiler({
             }
             if (existsIndexHtml) {
                 const scriptElems = indexDoc.querySelectorAll('script[src]');
-                let cnt = -1;
+                const styleElems = indexDoc.querySelectorAll('link[href][rel=stylesheet]');
                 for (const scriptElem of scriptElems) {
                     const srcPath = scriptElem.src;
                     for (const path in jsFiles) {
                         if (srcPath.includes(path)) {
                             jsFiles[path].main = true;
                             scriptElem.remove();
+                        }
+                    }
+                }
+                for (const styleElem of styleElems) {
+                    const srcPath = styleElem.href;
+                    for (const path in cssFiles) {
+                        if (srcPath.includes(path)) {
+                            styleElem.remove();
                         }
                     }
                 }
@@ -179,6 +192,15 @@ Plugin.registerCompiler({
                             data
                         });
                     }
+                }
+                for (const path in cssFiles) {
+                    const {
+                        data
+                    } = cssFiles[path];
+                    targetFile.addStylesheet({
+                        path,
+                        data,
+                    });
                 }
                 targetFile.addHtml({
                     data: indexDoc.head.innerHTML,

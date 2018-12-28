@@ -1,6 +1,8 @@
 const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
 const path = Npm.require('path');
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
+const SCRIPT_REGEX = /<script type="text\/javascript" src="([^"]+)"><\/script>/gm
+const STYLE_REGEX = /<link href="([^"]+)" rel="stylesheet">/gm
 
 function interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj.default : obj;
@@ -235,15 +237,28 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
             const index = clientConfig.devServer.index || 'index.html'
 
             if (index in assets) {
-                const content = assets[index].source().split(' src="').join(' defer src="');
+                const content = assets[index].source()
+                let head = HEAD_REGEX.exec(content)[1];
+                let body = BODY_REGEX.exec(content)[1];
 
+                const css = []
+                const js = []
+
+                head = head.replace(STYLE_REGEX, function(match, url) {
+                    css.push({url: '/' + url})
+                    return ''
+                })
+
+                body = body.replace(SCRIPT_REGEX, function(match, url) {
+                    js.push({url: '/' + url})
+                    return ''
+                })
+                
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
-                    const head = HEAD_REGEX.exec(content)[1];
-                    data.dynamicHead = data.dynamicHead || '';
-                    data.dynamicHead += head;
-                    const body = BODY_REGEX.exec(content)[1];
-                    data.dynamicBody = data.dynamicBody || '';
-                    data.dynamicBody += body;
+                    data.head = data.head += head
+                    data.body = data.body += body
+                    data.js = [...data.js, ...js]
+                    data.css = [...data.css, ...css]
                 })
             }
         });
