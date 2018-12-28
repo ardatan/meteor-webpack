@@ -204,7 +204,7 @@ function arrangeConfig(webpackConfig) {
     return webpackConfig;
 }
 
-if (Meteor.isServer && Meteor.isDevelopment) {
+if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTest) {
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
     const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
