@@ -235,7 +235,7 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
             const index = clientConfig.devServer.index || 'index.html'
 
             if (index in assets) {
-                const content = assets[index].source().split(' src="').join(' defer async src="');
+                const content = assets[index].source().split(' src="').join(' defer src="');
 
                 WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
                     const head = HEAD_REGEX.exec(content)[1];
