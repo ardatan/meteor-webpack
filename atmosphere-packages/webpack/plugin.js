@@ -1,4 +1,5 @@
 const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
+const ENABLE_LEGACY_BUILD = process.env.ENABLE_LEGACY_BUILD || false;
 Plugin.registerCompiler({
     extensions: ['js', 'jsx', 'ts', 'tsx', 'html'],
 }, function () {
@@ -62,6 +63,12 @@ Plugin.registerCompiler({
             const targetFile = inputFiles.find(inputFile => inputFile.getPathInPackage().endsWith(WEBPACK_CONFIG_FILE));
             //Get source hash in order to check if configuration is changed.
             const sourceHash = targetFile.getSourceHash();
+
+            // Disable legacy builds in development
+            const arch = targetFile.getArch()
+            if(arch === 'web.browser.legacy' && !ENABLE_LEGACY_BUILD && process.env.NODE_ENV === 'development') {
+                return
+            }
 
             const targetPlatform = targetFile.getArch().includes('web') ? 'web' : 'node';
 
