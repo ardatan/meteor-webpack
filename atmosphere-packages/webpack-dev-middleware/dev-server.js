@@ -84,6 +84,17 @@ function webpackHotServerMiddleware(multiCompiler) {
     let error = false;
 
     const doneHandler = (multiStats) => {
+        // Iterate across opened sessions
+        for (const sessionId in Meteor.server.sessions) {
+            if (!Meteor.server.sessions.hasOwnProperty(sessionId)) {
+                continue;
+            }
+            
+            // This is flag means that currently worker do processing message
+            // and each receiving message over ddp will be cached in queue
+            Meteor.server.sessions[sessionId].workerRunning = true;
+        }
+
         error = false;
         const serverStats = findStats(multiStats, 'server')[0];
         // Server compilation errors need to be propagated to the client.
@@ -158,6 +169,18 @@ function webpackHotServerMiddleware(multiCompiler) {
             );
         } catch (e) {
             console.log(e)
+        } finally {
+            // Iterate across opened sessions
+            for (const sessionId in Meteor.server.sessions) {
+                if (!Meteor.server.sessions.hasOwnProperty(sessionId)) {
+                    continue;
+                }
+                
+                // Reverted back flag to initial value
+                Meteor.server.sessions[sessionId].workerRunning = false;
+                // To replay cached messages need to send on processing some fake message
+                Meteor.server.sessions[sessionId].processMessage({msg: 'test'});
+            }
         }
     };
 
