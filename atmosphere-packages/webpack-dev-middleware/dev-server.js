@@ -245,9 +245,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         clientConfig.devServer.publicPath = clientConfig.devServer.publicPath || (clientConfig.output && clientConfig.output.publicPath);
         const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
         const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
-        const SCRIPT_REGEX = /<script type="text\/javascript" src="([^"]+)"><\/script>/gm
-        const STYLE_REGEX = /<link href="([^"]+)" rel="stylesheet">/gm
-
+      
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
             index: false,
             ...clientConfig.devServer
@@ -279,7 +277,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             const publicPath = clientConfig.output && clientConfig.output.publicPath || '/'
 
             if(assets[index]) {
-                const content = assets[index].source()
+                const content = assets[index].source().split(' src="').join(' defer src="');
                 head = HEAD_REGEX.exec(content)[1];
                 body = BODY_REGEX.exec(content)[1];
             }
@@ -299,7 +297,6 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 })
             }
 
-
             // Remove any whitespace at the end of the body or server-render will mangle the HTML output
             body = body.replace(/[\t\n\r\s]+$/, '')
 
@@ -310,6 +307,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 })
             }
         });
+
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
             const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
             WebApp.rawConnectHandlers.use(webpackHotMiddleware(clientCompiler));

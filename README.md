@@ -171,6 +171,10 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     !webpack.config.js
 ```
 
+### meteor/server-render
+
+- Meteor's `server-render` will work as expected if you use webpack to include HTML via `HtmlWebpackPlugin`. **Important: Be sure that server-render is listed BELOW webpack-dev-server in `meteor/packages`**
+
 ### Dynamic boilerplate assets
 
 - You can use `WebAppInternals.registerBoilerplateCallback` to dynamically change the CSS and JS served to visitors via `data.js` and `data.css`. In order to use this feature with webpack, you must set `inject: false` on `HtmlWebpackPlugin` and set the environment variable `DYNAMIC_ASSETS=true`.
