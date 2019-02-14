@@ -228,7 +228,7 @@ function arrangeConfig(webpackConfig) {
     return webpackConfig;
 }
 
-if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTest) {
+if (Meteor.isServer && Meteor.isDevelopment) {
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
     const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
@@ -299,8 +299,16 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
                 })
             }
 
+
             // Remove any whitespace at the end of the body or server-render will mangle the HTML output
             body = body.replace(/[\t\n\r\s]+$/, '')
+
+            // Close all websockets so test runners monitoring the DDP connection (like Chimpy) know when to re-run
+            if (Meteor.isTest || Meteor.isAppTest) {
+                Meteor.server.stream_server.open_sockets.forEach(function(socket) {
+                    socket.close()
+                })
+            }
         });
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
             const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
