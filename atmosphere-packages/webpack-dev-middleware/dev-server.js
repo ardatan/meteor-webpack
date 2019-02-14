@@ -272,6 +272,9 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
                 head = HEAD_REGEX.exec(content)[1];
                 body = BODY_REGEX.exec(content)[1];
             }
+
+            // Remove any whitespace at the end of the body or server-render will mangle the HTML output
+            body = body.replace(/[\t\n\r\s]+$/, '')
         });
         
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
