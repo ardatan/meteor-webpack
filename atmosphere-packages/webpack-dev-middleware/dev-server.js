@@ -244,10 +244,20 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
         clientConfig.devServer.publicPath = clientConfig.devServer.publicPath || (clientConfig.output && clientConfig.output.publicPath);
         const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
         const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
+
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
             index: false,
             ...clientConfig.devServer
         }));
+
+        let head
+        let body
+        WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
+            data.dynamicHead = data.dynamicHead || '';
+            data.dynamicHead = head
+            data.dynamicBody = data.dynamicBody || '';
+            data.dynamicBody = body
+        })
 
         compiler.hooks.done.tap('meteor-webpack', ({
             stats
@@ -259,17 +269,11 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
 
             if (index in assets) {
                 const content = assets[index].source().split(' src="').join(' defer src="');
-
-                WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
-                    const head = HEAD_REGEX.exec(content)[1];
-                    data.dynamicHead = data.dynamicHead || '';
-                    data.dynamicHead += head;
-                    const body = BODY_REGEX.exec(content)[1];
-                    data.dynamicBody = data.dynamicBody || '';
-                    data.dynamicBody += body;
-                })
+                head = HEAD_REGEX.exec(content)[1];
+                body = BODY_REGEX.exec(content)[1];
             }
         });
+        
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
             const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
             WebApp.rawConnectHandlers.use(webpackHotMiddleware(clientCompiler));

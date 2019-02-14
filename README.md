@@ -171,6 +171,10 @@ don't forget to install `webpack-dev-middleware` package from NPM;
     !webpack.config.js
 ```
 
+### meteor/server-render
+
+- Meteor's `server-render` will work as expected if you use webpack to include HTML via `HtmlWebpackPlugin`. **Important: Be sure that server-render is listed BELOW webpack-dev-server in `meteor/packages`**
+
 ## Galaxy Deployment
 `meteor deploy` command doesn't set `NODE_ENV=production` environment variable. That's why, `webpack` compiler recognizes that it is still a `development` build. You have two options to fix issue;
 ### First option ( Recommended )
