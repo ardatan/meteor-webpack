@@ -1,4 +1,5 @@
 const WEBPACK_CONFIG_FILE = process.env.WEBPACK_CONFIG_FILE || 'webpack.config.js';
+const DYNAMIC_ASSETS = process.env.DYNAMIC_ASSETS || false;
 const path = Npm.require('path');
 const projectPath = path.resolve('.').split(path.sep + '.meteor')[0];
 
@@ -244,7 +245,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         clientConfig.devServer.publicPath = clientConfig.devServer.publicPath || (clientConfig.output && clientConfig.output.publicPath);
         const HEAD_REGEX = /<head[^>]*>((.|[\n\r])*)<\/head>/im
         const BODY_REGEX = /<body[^>]*>((.|[\n\r])*)<\/body>/im;
-
+      
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
             index: false,
             ...clientConfig.devServer
@@ -252,11 +253,18 @@ if (Meteor.isServer && Meteor.isDevelopment) {
 
         let head
         let body
+        let css = []
+        let js = []
+
         WebAppInternals.registerBoilerplateDataCallback('meteor/ardatan:webpack', (req, data) => {
             data.dynamicHead = data.dynamicHead || '';
             data.dynamicHead = head
             data.dynamicBody = data.dynamicBody || '';
             data.dynamicBody = body
+            if(DYNAMIC_ASSETS) {
+                data.js = data.js.concat(js)
+                data.css = data.css.concat(css)
+            }
         })
 
         compiler.hooks.done.tap('meteor-webpack', ({
@@ -266,11 +274,27 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 assets
             } = stats[0].compilation
             const index = clientConfig.devServer.index || 'index.html'
+            const publicPath = clientConfig.output && clientConfig.output.publicPath || '/'
 
-            if (index in assets) {
+            if(assets[index]) {
                 const content = assets[index].source().split(' src="').join(' defer src="');
                 head = HEAD_REGEX.exec(content)[1];
                 body = BODY_REGEX.exec(content)[1];
+            }
+
+            // Optional Merging assets into Meteor boilerplate
+            // Use with `inject: false` option on HtmlWebpackPlugin
+            if(DYNAMIC_ASSETS) {
+                css = []
+                js = []
+                Object.keys(assets).forEach(key => {
+                    const url = publicPath + key
+                    if(key.endsWith('.js')) {
+                        js.push({ url })
+                    } else if(key.endsWith('.css')) {
+                        css.push({ url })
+                    }
+                })
             }
 
             // Remove any whitespace at the end of the body or server-render will mangle the HTML output
@@ -283,7 +307,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 })
             }
         });
-        
+
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
             const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
             WebApp.rawConnectHandlers.use(webpackHotMiddleware(clientCompiler));
