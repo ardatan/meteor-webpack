@@ -227,7 +227,7 @@ function arrangeConfig(webpackConfig) {
     return webpackConfig;
 }
 
-if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTest) {
+if (Meteor.isServer && Meteor.isDevelopment) {
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
     const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
@@ -267,6 +267,13 @@ if (Meteor.isServer && Meteor.isDevelopment && !Meteor.isTest && !Meteor.isAppTe
                     const body = BODY_REGEX.exec(content)[1];
                     data.dynamicBody = data.dynamicBody || '';
                     data.dynamicBody += body;
+                })
+            }
+
+            // Close all websockets so test runners monitoring the DDP connection (like Chimpy) know when to re-run
+            if (Meteor.isTest || Meteor.isAppTest) {
+                Meteor.server.stream_server.open_sockets.forEach(function(socket) {
+                    socket.close()
                 })
             }
         });

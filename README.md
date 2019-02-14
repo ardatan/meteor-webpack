@@ -179,3 +179,10 @@ or
 ## Second option
 - Create a seperate configuration file for `webpack` which doesn't contain development settings such as `devServer`, and includes `UglifyJs` plugins. Then, set environment variable `WEBPACK_CONFIG_FILE=<filename>`.
 
+## Testing
+
+- Using `meteor test` requires the option  `--test-app-path $(pwd)/.meteortest`. This will run the test inside the `.meteortest` directory in your project. Normally, `meteor test` runs a test version of the application inside your `/tmp` directory, but webpack needs to be able to access the project's `node_modules` folder.
+
+- You may also run into permissions issues after the `.meteortest` folder is created. I recommend adding `rm -r .meteortest` to the beginning of your test command.
+
+- All DDP connections are closed when the dev server recompiles in test mode. This will trigger testing libraries that use DDP (Chimpy) to re-run if they are in watch mode.
