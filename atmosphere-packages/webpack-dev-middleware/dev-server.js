@@ -260,7 +260,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         }
         if(Package['accounts-base']) {
             const { Accounts } = Package['accounts-base']
-            Accounts.__loginHandlers = loginHandlers
+            Accounts._loginHandlers = loginHandlers
             Accounts._validateNewUserHooks = validateNewUserHooks
             Accounts._options = Object.assign({}, accountsOptions)
             Accounts._validateLoginHook.callbacks = Object.assign({}, _validateLoginHookCallbacks)
