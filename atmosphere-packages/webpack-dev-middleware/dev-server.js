@@ -229,6 +229,40 @@ function arrangeConfig(webpackConfig) {
 }
 
 if (Meteor.isServer && Meteor.isDevelopment) {
+
+    // Cache the initial state of the Meteor server before the application code is executed
+    let rawConnectHandlers = Array.from(WebApp.rawConnectHandlers.stack)
+    let connectHandlers = Array.from(WebApp.connectHandlers.stack)
+    let loginHandlers = []
+    let validateNewUserHooks = []
+    let accountsOptions = {}
+
+    if(Package['accounts-base']) {
+        const { Accounts } = Package['accounts-base']
+        accountsOptions = Object.assign({}, Accounts._options)
+        loginHandlers = Array.from(Accounts._loginHandlers)
+        validateNewUserHooks = Array.from(Accounts._validateNewUserHooks)
+    }
+
+    // Restore the state of the Meteor server ahead of hot module replacement
+    function cleanServer() {
+        WebApp.rawConnectHandlers.stack = rawConnectHandlers
+        WebApp.connectHandlers.stack = connectHandlers
+        if(Package['server-render']) {
+            Package['server-render'].onPageLoad.clear()
+        }
+        if(Package['staringatlights:fast-render']) {
+            const FastRender = Package['staringatlights:fast-render'].FastRender
+            FastRender._onAllRoutes = [FastRender._onAllRoutes[0]]
+        }
+        if(Package['accounts-base']) {
+            const { Accounts } = Package['accounts-base']
+            Accounts.__loginHandlers = loginHandlers
+            Accounts._validateNewUserHooks = validateNewUserHooks
+            Accounts._options = {}
+        }
+    }
+
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
     const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
@@ -306,6 +340,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                     socket.close()
                 })
             }
+
+            cleanServer()
         });
 
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
