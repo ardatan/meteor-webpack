@@ -235,6 +235,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     let connectHandlers = Array.from(WebApp.connectHandlers.stack)
     let loginHandlers = []
     let validateNewUserHooks = []
+    let _validateLoginHookCallbacks
     let accountsOptions = {}
 
     if(Package['accounts-base']) {
@@ -242,7 +243,9 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         accountsOptions = Object.assign({}, Accounts._options)
         loginHandlers = Array.from(Accounts._loginHandlers)
         validateNewUserHooks = Array.from(Accounts._validateNewUserHooks)
+        _validateLoginHookCallbacks = Object.assign({}, Accounts._validateLoginHook.callbacks)
     }
+
 
     // Restore the state of the Meteor server ahead of hot module replacement
     function cleanServer() {
@@ -259,7 +262,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             const { Accounts } = Package['accounts-base']
             Accounts.__loginHandlers = loginHandlers
             Accounts._validateNewUserHooks = validateNewUserHooks
-            Accounts._options = {}
+            Accounts._options = Object.assign({}, accountsOptions)
+            Accounts._validateLoginHook.callbacks = Object.assign({}, _validateLoginHookCallbacks)
         }
     }
 
