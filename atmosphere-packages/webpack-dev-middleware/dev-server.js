@@ -237,6 +237,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     let validateNewUserHooks = []
     let _validateLoginHookCallbacks
     let accountsOptions = {}
+    let nullPublications = Meteor.server.universal_publish_handlers
 
     if(Package['accounts-base']) {
         const { Accounts } = Package['accounts-base']
@@ -246,11 +247,11 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         _validateLoginHookCallbacks = Object.assign({}, Accounts._validateLoginHook.callbacks)
     }
 
-
     // Restore the state of the Meteor server ahead of hot module replacement
     function cleanServer() {
         WebApp.rawConnectHandlers.stack = rawConnectHandlers
         WebApp.connectHandlers.stack = connectHandlers
+        Meteor.server.universal_publish_handlers = nullPublications
         if(Package['server-render']) {
             Package['server-render'].onPageLoad.clear()
         }
