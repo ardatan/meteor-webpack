@@ -237,7 +237,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
     let validateNewUserHooks = []
     let _validateLoginHookCallbacks
     let accountsOptions = {}
-    let nullPublications = Meteor.server.universal_publish_handlers
+    let nullPublications = Array.from(Meteor.server.universal_publish_handlers)
 
     if(Package['accounts-base']) {
         const { Accounts } = Package['accounts-base']
@@ -287,7 +287,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
       
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
             index: false,
-            ...clientConfig.devServer
+            ...clientConfig.devServer,
         }));
 
         let head
