@@ -117,6 +117,8 @@ then you have to add another atmosphere package to packages;
     meteor add ardatan:webpack-dev-middleware
 ```
 
+***NOTE*** Make sure `ardatan:webpack-dev-middleware` is at the bottom of your `.packages` list for the best compatibility with other Meteor packages.
+
 don't forget to install `webpack-dev-middleware` package from NPM;
 
 ```bash

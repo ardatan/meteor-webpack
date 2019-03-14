@@ -229,6 +229,7 @@ function arrangeConfig(webpackConfig) {
 }
 
 if (Meteor.isServer && Meteor.isDevelopment) {
+
     const webpack = Npm.require(path.join(projectPath, 'node_modules/webpack'))
     const webpackConfig = arrangeConfig(Npm.require(path.join(projectPath, WEBPACK_CONFIG_FILE)));
 
@@ -248,7 +249,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
       
         WebApp.rawConnectHandlers.use(webpackDevMiddleware(compiler, {
             index: false,
-            ...clientConfig.devServer
+            ...clientConfig.devServer,
         }));
 
         let head
@@ -266,6 +267,44 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                 data.css = data.css.concat(css)
             }
         })
+
+        // Cache the initial state of the Meteor server before the application code is executed
+        let rawConnectHandlers = Array.from(WebApp.rawConnectHandlers.stack)
+        let connectHandlers = Array.from(WebApp.connectHandlers.stack)
+        let loginHandlers = []
+        let validateNewUserHooks = []
+        let _validateLoginHookCallbacks
+        let accountsOptions = {}
+        let nullPublications = Array.from(Meteor.server.universal_publish_handlers)
+
+        if(Package['accounts-base']) {
+            const { Accounts } = Package['accounts-base']
+            accountsOptions = Object.assign({}, Accounts._options)
+            loginHandlers = Array.from(Accounts._loginHandlers)
+            validateNewUserHooks = Array.from(Accounts._validateNewUserHooks)
+            _validateLoginHookCallbacks = Object.assign({}, Accounts._validateLoginHook.callbacks)
+        }
+
+        // Restore the state of the Meteor server ahead of hot module replacement
+        function cleanServer() {
+            WebApp.rawConnectHandlers.stack = rawConnectHandlers
+            WebApp.connectHandlers.stack = connectHandlers
+            Meteor.server.universal_publish_handlers = nullPublications
+            if(Package['server-render']) {
+                Package['server-render'].onPageLoad.clear()
+            }
+            if(Package['staringatlights:fast-render']) {
+                const FastRender = Package['staringatlights:fast-render'].FastRender
+                FastRender._onAllRoutes = [FastRender._onAllRoutes[0]]
+            }
+            if(Package['accounts-base']) {
+                const { Accounts } = Package['accounts-base']
+                Accounts._loginHandlers = loginHandlers
+                Accounts._validateNewUserHooks = validateNewUserHooks
+                Accounts._options = Object.assign({}, accountsOptions)
+                Accounts._validateLoginHook.callbacks = Object.assign({}, _validateLoginHookCallbacks)
+            }
+        }
 
         compiler.hooks.done.tap('meteor-webpack', ({
             stats
@@ -306,6 +345,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
                     socket.close()
                 })
             }
+
+            cleanServer()
         });
 
         if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
