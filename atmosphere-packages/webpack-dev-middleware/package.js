@@ -1,7 +1,7 @@
 Package.describe({
     name: 'ardatan:webpack-dev-middleware',
     debugOnly: true,
-    version: '0.0.8',
+    version: '0.0.9',
     summary: 'Webpack Dev Middleware for Meteor',
     git: 'https://github.com/ardatan/meteor-webpack',
     documentation: '../../README.md'
