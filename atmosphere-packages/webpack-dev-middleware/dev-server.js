@@ -268,6 +268,14 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             }
         })
 
+        if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
+            const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
+            WebApp.rawConnectHandlers.use(webpackHotMiddleware(clientCompiler));
+        }
+        if (serverConfig && serverConfig.devServer && serverConfig.devServer.hot) {
+            WebApp.rawConnectHandlers.use(Meteor.bindEnvironment(webpackHotServerMiddleware(compiler)));
+        }
+
         // Cache the initial state of the Meteor server before the application code is executed
         let rawConnectHandlers = Array.from(WebApp.rawConnectHandlers.stack)
         let connectHandlers = Array.from(WebApp.connectHandlers.stack)
@@ -349,13 +357,7 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             cleanServer()
         });
 
-        if (clientConfig && clientConfig.devServer && clientConfig.devServer.hot) {
-            const webpackHotMiddleware = Npm.require(path.join(projectPath, 'node_modules/webpack-hot-middleware'));
-            WebApp.rawConnectHandlers.use(webpackHotMiddleware(clientCompiler));
-        }
-        if (serverConfig && serverConfig.devServer && serverConfig.devServer.hot) {
-            WebApp.rawConnectHandlers.use(Meteor.bindEnvironment(webpackHotServerMiddleware(compiler)));
-        }
+
 
     }
 
