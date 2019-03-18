@@ -277,8 +277,8 @@ if (Meteor.isServer && Meteor.isDevelopment) {
         }
 
         // Cache the initial state of the Meteor server before the application code is executed
-        let rawConnectHandlers = Array.from(WebApp.rawConnectHandlers.stack)
-        let connectHandlers = Array.from(WebApp.connectHandlers.stack)
+        // We can't cache the connect handlers, the old functions are linked to old resources in memory which may or may not exist anymore
+        // We could clear them, but that would remove any functionality added by packages
         let loginHandlers = []
         let validateNewUserHooks = []
         let _validateLoginHookCallbacks
@@ -295,8 +295,6 @@ if (Meteor.isServer && Meteor.isDevelopment) {
 
         // Restore the state of the Meteor server ahead of hot module replacement
         function cleanServer() {
-            WebApp.rawConnectHandlers.stack = rawConnectHandlers
-            WebApp.connectHandlers.stack = connectHandlers
             Meteor.server.universal_publish_handlers = nullPublications
             if(Package['server-render']) {
                 Package['server-render'].onPageLoad.clear()
