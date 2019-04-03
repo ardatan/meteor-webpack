@@ -105,7 +105,6 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
 - If you have an existing meteor app and do not want to change the pathnames from '/imports/...' to relative paths, use the following in your `webpack.config.js`
 
 ```js
-    const meteorExternals = require('webpack-meteor-externals');
     //...
     resolve: {
         modules: [
