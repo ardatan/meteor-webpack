@@ -212,15 +212,15 @@ function arrangeConfig(webpackConfig) {
         singleWebpackConfig.name = singleWebpackConfig.target == 'node' ? 'server' : 'client';
         if (singleWebpackConfig.target !== 'node' && singleWebpackConfig.devServer && singleWebpackConfig.devServer.hot) {
             if (singleWebpackConfig.entry instanceof Array || typeof singleWebpackConfig.entry === 'string') {
-                if (!(singleWebpackConfig.entry instanceof Array)) {
-                    singleWebpackConfig.entry = [singleWebpackConfig.entry];
-                }
                 singleWebpackConfig.entry = {
                     app: singleWebpackConfig.entry
                 };
             }
             //singleWebpackConfig.devServer.serverSideRender = true;
             for (const key in singleWebpackConfig.entry) {
+                if (!(singleWebpackConfig.entry[key] instanceof Array)) {
+                    singleWebpackConfig.entry[key] = [singleWebpackConfig.entry[key]];
+                }
                 singleWebpackConfig.entry[key].push('webpack-hot-middleware/client?reload=true');
             }
         }
