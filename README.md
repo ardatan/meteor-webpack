@@ -101,6 +101,25 @@ With Meteor-Webpack, you can extract `webpack.config.js` from Angular CLI, `crea
     //...
 ```
 
+## Meteor File Imports - Optional
+- If you have an existing meteor app and do not want to change the pathnames from '/imports/...' to relative paths, use the following in your `webpack.config.js`
+
+```js
+    //...
+    resolve: {
+        modules: [
+          path.resolve(__dirname, 'node_modules'),
+          path.resolve(__dirname, './'), // enables you to use 'imports/...' instead of '/imports/...'
+        ],
+        alias: {
+          '/imports': path.resolve(__dirname, './imports'),
+          '/ui': path.resolve(__dirname, './ui'),
+          // ... and any other directories you might have
+        }
+    }
+    //...
+```
+
 ### Client Configuration
 
 #### [Webpack Dev Middleware](https://github.com/webpack/webpack-dev-middleware)
