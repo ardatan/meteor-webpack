@@ -1,5 +1,4 @@
-var path = require('path')
-var webpack = require('webpack')
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const meteorExternals = require('webpack-meteor-externals');
 
@@ -62,7 +61,7 @@ const clientConfig = {
       template: './client/main.html'
     })
   ]
-}
+};
 
 const serverConfig = {
   entry: './server/main.js',
