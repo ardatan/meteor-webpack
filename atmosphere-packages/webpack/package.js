@@ -1,6 +1,6 @@
 Package.describe({
     name: 'ardatan:webpack',
-    version: '0.0.12',
+    version: '0.0.14',
     summary: 'Webpack Integration for Meteor',
     git: 'https://github.com/ardatan/meteor-webpack',
     documentation: '../../README.md'
