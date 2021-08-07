@@ -313,17 +313,23 @@ if (Meteor.isServer && Meteor.isDevelopment) {
             }
         }
 
+        let assets;
+        if (clientCompiler.hooks.assetEmitted /* Webpack 5 */) {
+            assets = {};
+            clientCompiler.hooks.assetEmitted.tap('meteor-webpack', (path, { content }) => {
+                assets[path] = { source() { return content } };
+            });
+        }
+
         compiler.hooks.done.tap('meteor-webpack', ({
             stats
         }) => {
-            const {
-                assets
-            } = stats[0].compilation
+            assets = (assets || stats[0].compilation.assets);
             const index = clientConfig.devServer.index || 'index.html'
             const publicPath = clientConfig.output && clientConfig.output.publicPath || '/'
 
             if(assets[index]) {
-                const content = assets[index].source().split(' src="').join(' defer src="');
+                const content = assets[index].source().toString('utf8').split(' src="').join(' defer src="');
                 head = HEAD_REGEX.exec(content)[1];
                 body = BODY_REGEX.exec(content)[1];
             }
