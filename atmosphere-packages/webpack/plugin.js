@@ -85,9 +85,16 @@ Plugin.registerCompiler({
 
             const compiler = compilerCache[targetPlatform];
 
+            let assets;
             const {
                 compilation
             } = new Promise((resolve, reject) => {
+                if (compiler.hooks.assetEmitted /* Webpack 5 */) {
+                    assets = {};
+                    compiler.hooks.assetEmitted.tap('meteor-webpack', (path, { content }) => {
+                        assets[path] = { source() { return content } };
+                    });
+                }
                 compiler.hooks.done.tap('meteor-webpack', resolve)
                 compiler.run((err, stats) => {
                     if (err) {
@@ -100,10 +107,8 @@ Plugin.registerCompiler({
                     }
                 });
             }).await();
-            const {
-                assets,
-                options
-            } = compilation;
+
+            assets = (assets || compilation.assets);
 
             const existsIndexHtml = 'index.html' in assets;
             let indexDoc;
