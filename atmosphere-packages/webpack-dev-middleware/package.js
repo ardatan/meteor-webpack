@@ -14,6 +14,6 @@ Package.onUse(function (api) {
 
 Npm.depends({
     debug: "4.3.2",
-    "source-map-support": "0.5.19",
+    "source-map-support": "0.5.21",
     "require-from-string": "2.0.2"
 });
