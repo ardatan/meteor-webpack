@@ -13,7 +13,7 @@ Package.onUse(function (api) {
 });
 
 Npm.depends({
-    debug: "4.3.2",
+    debug: "4.3.4",
     "source-map-support": "0.5.19",
     "require-from-string": "2.0.2"
 });
