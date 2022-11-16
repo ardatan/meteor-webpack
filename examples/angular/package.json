@@ -22,7 +22,7 @@
     "@ngtools/webpack": "^1.10.2",
     "@types/meteor": "^1.4.13",
     "fork-ts-checker-webpack-plugin": "^0.4.1",
-    "html-webpack-plugin": "^3.0.7",
+    "html-webpack-plugin": "^5.5.0",
     "raw-loader": "^0.5.1",
     "ts-loader": "^4.1.0",
     "typescript": "2.4.2",
